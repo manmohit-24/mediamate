@@ -17,9 +17,9 @@ export async function request(endpoint, params = {}) {
 
       if (res.ok) return body;
 
-      error = new Error(`TMDb ${res.status}: ${body.status_message}`);
+      const error = new Error(`TMDb ${res.status}: ${body.status_message}`);
 
-      if ([429, 500, 502, 503, 504].includes(res.status)) throw lastError;
+      if ([429, 500, 502, 503, 504].includes(res.status)) throw error;
 
       lastError = error;
       break;

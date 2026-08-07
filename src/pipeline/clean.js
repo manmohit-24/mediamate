@@ -28,8 +28,6 @@ export async function clean(files, config) {
       await addStandardMeta(file);
 
       await shutdown.critical(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-
         await updateMetadata(file);
 
         await renameFile(file);
