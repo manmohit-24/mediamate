@@ -1,5 +1,5 @@
 {
-  "name": "media-tools",
+  "name": "mediamate",
   "version": "1.0.0",
   "main": "index.js",
   "private": true,
@@ -19,7 +19,7 @@
     "ora": "^9.4.1"
   },
   "bin": {
-    "media-tools": "./src/cli.js"
+    "mediamate": "./src/cli.js"
   },
   "type": "module"
 }

@@ -1,10 +1,11 @@
 #!/usr/bin/env node
+
 import "./app/shutdown.js";
-
-import { logger } from "./shared/logger.js";
+import { appConfig } from "./app/config.js";
 import { spinner } from "./app/spinner.js";
-
 import { MODES, FLAGS } from "./app/constants.js";
+import { showHelp } from "./app/help.js";
+import { logger } from "./shared/logger.js";
 
 import { scan } from "./features/scan/scan.js";
 
@@ -17,9 +18,20 @@ const config = {
   path: null,
   recursive: false,
   auto: false,
+  help: false,
 };
 
-for (const arg of args) {
+config.mode = MODES[args[0]];
+config.help = args.some((arg) => arg === "-h" || arg === "--help");
+
+if (config.help) {
+  showHelp(config.mode);
+  process.exit(0);
+}
+
+for (let i = 1; i < args.length; i++) {
+  const arg = args[i];
+
   if (arg.startsWith("-")) {
     const flag = FLAGS[arg];
 
@@ -29,25 +41,16 @@ for (const arg of args) {
     }
 
     config[flag] = true;
-    continue;
-  }
-
-  if (!config.mode) {
-    if (!MODES[arg]) {
-      logger.error(`'${arg}' is not a valid mode`);
-      process.exit(1);
-    }
-
-    config.mode = arg;
-    continue;
-  }
-
-  if (!config.path) {
+  } else if (!config.path) {
     config.path = arg;
-    continue;
+  } else {
+    logger.error(`Unexpected argument: '${arg}'`);
+    process.exit(1);
   }
+}
 
-  logger.error(`Unexpected argument: '${arg}'`);
+if (!config.mode) {
+  logger.error(`A valid mode is required`);
   process.exit(1);
 }
 
@@ -57,7 +60,7 @@ if (!config.path) {
 }
 
 logger.divider();
-logger.title("Media Tools");
+logger.title(appConfig.appName);
 logger.text(`Mode             : ${config.mode}`);
 logger.text(`Path             : ${config.path}`);
 logger.text(`Recursive        : ${config.recursive}`);

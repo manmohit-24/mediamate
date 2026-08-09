@@ -8,6 +8,8 @@ export const FLAGS = {
   "--recursive": "recursive",
   "-a": "auto",
   "--auto": "auto",
+  "-h": "help",
+  "--help": "help",
 };
 
 export const SUPPORTED_EXTENSIONS = new Set([".mkv"]);
