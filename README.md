@@ -228,4 +228,4 @@ The project uses JavaScript ES modules and requires `TMDB_API_KEY` at startup.
 
 ## License
 
-No license has been specified yet.
+MediaMate is licensed under the **GNU General Public License v3.0 (GPL-3.0)**. See the [`LICENSE`](LICENSE) file for the full license text.
