@@ -26,7 +26,14 @@ A CLI tool for cleaning, enriching, and standardizing media files using metadata
 - [Node.js](https://nodejs.org/)
 - [pnpm](https://pnpm.io/)
 - **MediaInfo CLI** available in `PATH`
+- **MKVToolNix** (`mkvpropedit` and related MKV tools) available in `PATH`
 - A **TMDb API key**
+
+MediaMate currently works with **`.mkv`** files.
+
+### External tools
+
+MediaMate relies on command-line tools from [MediaInfo](https://mediaarea.net/en/MediaInfo) and [MKVToolNix](https://mkvtoolnix.download/). Make sure the required executables are installed and available through `PATH`.
 
 ## Installation
 
@@ -51,10 +58,16 @@ For local development, run it directly with Node:
 pnpm start -- clean ./path/to/media
 ```
 
-To make the `mediamate` command available globally from the local checkout:
+To install the local package globally with current pnpm:
 
 ```bash
-pnpm link --global
+pnpm add --global .
+```
+
+After installation, the `mediamate` command can be used directly:
+
+```bash
+mediamate clean ./path/to/media
 ```
 
 ## Configuration
@@ -164,7 +177,7 @@ Update timestamps
 
 The `clean` pipeline uses automatic matching when `--auto` is supplied; otherwise it uses interactive matching so the correct result can be selected.
 
-Existing metadata is read through the **MediaInfo** command-line tool. MediaMate then uses its matching, standardization, writing, renaming, and timestamp features to process the file.
+Existing metadata is read through the **MediaInfo** command-line tool. MediaMate uses **MKVToolNix** to modify MKV metadata and its own feature modules for matching, standardization, renaming, and timestamp handling.
 
 ## Project Structure
 
