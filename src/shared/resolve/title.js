@@ -7,10 +7,10 @@ import {
   extractYear,
 } from "./cleaners.js";
 
-export function resolveTitle(title, name) {
-  const year = extractYear(title) ?? extractYear(name);
+export function resolveTitle(title) {
+  const year = extractYear(title);
 
-  let resolved = title ?? name;
+  let resolved = title;
 
   resolved = removeWebsitePrefix(resolved);
   resolved = normalizeSeparators(resolved);

@@ -23,17 +23,23 @@ export async function guidedMatchMovie(file) {
 
 export async function autoMatchMovie(file) {
   spinner.step("Finding a Match");
-  query = resolveTitle(file.metadata.title, file.name);
-
-  const matches = await searchMovie(query);
-  if (matches.length === 0) throw new Error("No match found");
+  const matches = await match(file);
   file.match = matches[0];
 }
 
 export async function interactiveMatchMovie(file) {
-  const query = resolveTitle(file.metadata.title, file.name);
-  const matches = await searchMovie(query);
+  spinner.step("Finding a Match");
+  const matches = await match(file);
+  file.match = await spinner.suspend(() => chooseMovie(matches, file.name));
+}
+
+async function match(file) {
+  let matches = await searchMovie(resolveTitle(file.metadata.title));
+
+  if (matches.length > 0) return matches;
+
+  matches = await searchMovie(resolveTitle(file.name));
   if (matches.length === 0) throw new Error("No match found");
 
-  file.match = await spinner.suspend(() => chooseMovie(matches, file.name));
+  return matches;
 }

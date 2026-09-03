@@ -42,6 +42,8 @@ const STOP_WORDS = [
   "extended",
   "criterion",
   "uncut",
+
+  "imax",
 ];
 
 export function removeWebsitePrefix(text) {
