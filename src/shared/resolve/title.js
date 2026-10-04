@@ -8,6 +8,7 @@ import {
 } from "./cleaners.js";
 
 export function resolveTitle(title) {
+  if (!title) return {};
   const year = extractYear(title);
 
   let resolved = title;

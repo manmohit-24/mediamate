@@ -34,9 +34,13 @@ export async function interactiveMatchMovie(file) {
 }
 
 async function match(file) {
-  let matches = await searchMovie(resolveTitle(file.metadata.title));
+  let matches = [];
+  if (file.metadata.title)
+    matches = await searchMovie(resolveTitle(file.metadata.title));
 
   if (matches.length > 0) return matches;
+
+  if (!file.name) throw new Error("Either title or name is required");
 
   matches = await searchMovie(resolveTitle(file.name));
   if (matches.length === 0) throw new Error("No match found");
