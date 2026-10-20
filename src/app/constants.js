@@ -12,4 +12,5 @@ export const FLAGS = {
   "--help": "help",
 };
 
-export const SUPPORTED_EXTENSIONS = new Set([".mkv"]);
+// Only formats with a metadata writer should be scanned.
+export const SUPPORTED_EXTENSIONS = new Set([".mkv", ".mp4", ".m4v"]);

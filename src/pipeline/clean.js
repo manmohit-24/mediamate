@@ -7,10 +7,7 @@ import { renameFile } from "../features/rename/rename.js";
 import { readMetadata } from "../features/metadata/read.js";
 import { addStandardMeta } from "../features/standardize/standardize.js";
 
-import {
-  interactiveMatchMovie,
-  autoMatchMovie,
-} from "../features/match/match.js";
+import { interactiveMatch, autoMatch } from "../features/match/index.js";
 
 import { updateMetadata } from "../features/writer/index.js";
 
@@ -22,8 +19,8 @@ export async function clean(files, config) {
     await wrap({ file, i, total: files.length }, async () => {
       await readMetadata(file);
 
-      if (config.auto) await autoMatchMovie(file);
-      else await interactiveMatchMovie(file);
+      if (config.auto) await autoMatch(file);
+      else await interactiveMatch(file);
 
       await addStandardMeta(file);
 

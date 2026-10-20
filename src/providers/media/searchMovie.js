@@ -1,12 +1,8 @@
 import { request } from "./request.js";
 
 export async function searchMovie({ title, year }) {
-  const data = await request("/search/movie", {
-    query: title,
-    year,
-  });
-
-  return data.results.map((movie) => parseMovie(movie));
+  const data = await request("/search/movie", { query: title, year });
+  return data.results.map(parseMovie);
 }
 
 export async function searchMovieById(id) {
@@ -17,6 +13,7 @@ export async function searchMovieById(id) {
 
 function parseMovie(movie) {
   return {
+    type: "movie",
     id: movie.id,
     title: movie.title,
     release_date: movie.release_date || null,

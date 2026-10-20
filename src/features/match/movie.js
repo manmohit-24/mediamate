@@ -4,9 +4,20 @@ import { spinner } from "../../app/spinner.js";
 import { resolveTitle } from "../../shared/resolve/title.js";
 import { searchMovie, searchMovieById } from "../../providers/media/index.js";
 
+export async function autoMatchMovie(file) {
+  const matches = await matchMovie(file);
+  file.match = matches[0];
+  file.mediaType = "movie";
+}
+
+export async function interactiveMatchMovie(file) {
+  const matches = await matchMovie(file);
+  file.match = await spinner.suspend(() => chooseMovie(matches, file.name));
+  file.mediaType = "movie";
+}
+
 export async function guidedMatchMovie(file) {
   const value = await spinner.suspend(() => promptMovie(file.name));
-  spinner.step("Finding a Match");
 
   // testing for id format
   if (/^\d+$/.test(value)) {
@@ -19,21 +30,10 @@ export async function guidedMatchMovie(file) {
   if (matches.length === 0) throw new Error("No match found");
 
   file.match = await spinner.suspend(() => chooseMovie(matches, file.name));
+  file.mediaType = "movie";
 }
 
-export async function autoMatchMovie(file) {
-  spinner.step("Finding a Match");
-  const matches = await match(file);
-  file.match = matches[0];
-}
-
-export async function interactiveMatchMovie(file) {
-  spinner.step("Finding a Match");
-  const matches = await match(file);
-  file.match = await spinner.suspend(() => chooseMovie(matches, file.name));
-}
-
-async function match(file) {
+async function matchMovie(file) {
   let matches = [];
   if (file.metadata.title)
     matches = await searchMovie(resolveTitle(file.metadata.title));

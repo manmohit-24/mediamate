@@ -1,17 +1,11 @@
 import { wrap } from "./wrap.js";
-
 import { shutdown } from "../app/shutdown.js";
-
 import { renameFile } from "../features/rename/rename.js";
-
 import { readMetadata } from "../features/metadata/read.js";
 import { addStandardMeta } from "../features/standardize/standardize.js";
-
-import { guidedMatchMovie } from "../features/match/match.js";
-
 import { updateMetadata } from "../features/writer/index.js";
-
 import { updateTimestamps } from "../features/timestamps/timestamps.js";
+import { guidedMatch } from "../features/match/index.js";
 
 export async function guided(files, config) {
   for (let i = 0; i < files.length; i++) {
@@ -19,7 +13,7 @@ export async function guided(files, config) {
     await wrap({ file, i, total: files.length }, async () => {
       await readMetadata(file);
 
-      await guidedMatchMovie(file);
+      await guidedMatch(file);
 
       await addStandardMeta(file);
 
