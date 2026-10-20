@@ -3,6 +3,23 @@ import { shutdown } from "../../app/shutdown.js";
 
 const SKIP = Symbol("skip");
 
+export async function chooseMediaType(types) {
+  try {
+    const choice = await select({
+      message: `Is it a movie or TV-Show ?`,
+      choices: [
+        ...types.map((item) => ({ name: item, value: item })),
+        new Separator(),
+      ],
+    });
+
+    return choice;
+  } catch (error) {
+    if (error.name === "ExitPromptError") return shutdown.request();
+    throw error;
+  }
+}
+
 export async function chooseMovie(matches, name) {
   return chooseMedia(
     matches,
@@ -21,7 +38,7 @@ export async function chooseTV(matches, name) {
   );
 }
 
-async function chooseMedia(matches, name, label, kind) {
+async function chooseMedia(matches, name, label) {
   try {
     const choice = await select({
       message: `Multiple matches found for ${name}`,
@@ -56,7 +73,15 @@ export async function promptTV(fileName) {
   return promptTitle(
     fileName,
     "TV show name or TMDb ID",
-    "e.g. Breaking Bad or 1396",
+    "e.g. 'Breaking Bad - S01E03' or 1396",
+  );
+}
+
+export async function promptTVEpisode(fileName) {
+  return promptTitle(
+    fileName,
+    "Season and Episode (SXXEXX format ) :",
+    "e.g. 'Breaking Bad - S01E03' or 1396",
   );
 }
 

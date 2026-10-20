@@ -6,6 +6,7 @@ import {
   interactiveMatchMovie,
 } from "./movie.js";
 import { autoMatchTV, guidedMatchTV, interactiveMatchTV } from "./tv.js";
+import { chooseMediaType } from "./input.js";
 
 export async function autoMatch(file) {
   const parsed =
@@ -19,18 +20,16 @@ export async function interactiveMatch(file) {
   const parsed =
     parseEpisodeFilename(file.name) ?? parseEpisodeFilename(file.title);
   spinner.step("Finding a Match");
-  console.log(parsed);
 
   if (parsed) await interactiveMatchTV(file, parsed);
   else await interactiveMatchMovie(file);
 }
 
 export async function guidedMatch(file) {
-  const parsed =
-    parseEpisodeFilename(file.name) ?? parseEpisodeFilename(file.title);
+  const mediaType = await chooseMediaType(["TV", "Movie"]);
 
   spinner.step("Finding a Match");
 
-  if (parsed) await guidedMatchTV(file, parsed);
+  if (mediaType === "TV") await guidedMatchTV(file);
   else await guidedMatchMovie(file);
 }
