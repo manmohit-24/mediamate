@@ -5,7 +5,7 @@ import { readMetadata } from "../features/metadata/read.js";
 import { addStandardMeta } from "../features/standardize/standardize.js";
 import { updateMetadata } from "../features/writer/index.js";
 import { updateTimestamps } from "../features/timestamps/timestamps.js";
-import { guidedMatch } from "../features/match/index.js";
+import { guidedMatch } from "../features/match/guided.js";
 
 export async function guided(files, config) {
   for (let i = 0; i < files.length; i++) {

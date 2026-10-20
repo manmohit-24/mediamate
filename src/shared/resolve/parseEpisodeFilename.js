@@ -1,5 +1,5 @@
-export function parseEpisodeFilename(filename) {
-  const base = filename.replace(/\.[^.]+$/, "");
+export function parseEpisodeFilename(fileName) {
+  const base = fileName.replace(/\.[^.]+$/, "");
 
   const patterns = [
     // Show.S01E03, Show_S01_E03, Show S01E03, etc.
@@ -21,6 +21,7 @@ export function parseEpisodeFilename(filename) {
       season: Number(match[2]),
       episode: Number(match[3]),
       episodeEnd: match[4] ? Number(match[4]) : null,
+      fileName: fileName,
     };
   }
 

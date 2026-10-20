@@ -16,7 +16,7 @@ export async function getTVEpisode(seriesId, season, episode) {
   const data = await request(
     `/tv/${seriesId}/season/${season}/episode/${episode}`,
   );
-  console.log(data);
+
   return {
     id: data.id,
     title: data.name,
