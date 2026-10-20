@@ -1,12 +1,10 @@
-import { parseEpisodeFilename } from "../../shared/resolve/parseEpisodeFilename.js";
+import { parseEpisodeFilename, attachEpisode } from "./episode.js";
 import { spinner } from "../../app/spinner.js";
 
 import { chooseMovie, chooseTV } from "./input.js";
 
 import { resolveTitle } from "../../shared/resolve/title.js";
 import { searchMovie, searchTV } from "../../providers/media/index.js";
-
-import { attachEpisode } from "./attachEpisode.js";
 
 export async function match(file, auto) {
   const parsed =

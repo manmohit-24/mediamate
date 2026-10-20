@@ -6,8 +6,7 @@ import {
   promptTV,
   promptTVEpisode,
 } from "./input.js";
-import { parseEpisodeFilename } from "../../shared/resolve/parseEpisodeFilename.js";
-import { attachEpisode } from "./attachEpisode.js";
+import { parseEpisodeFilename, attachEpisode } from "./episode.js";
 
 import {
   searchTV,
