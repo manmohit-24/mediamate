@@ -12,6 +12,22 @@ export async function searchTVById(id) {
   return parseTV(await request(`/tv/${id}`));
 }
 
+export async function getLogo(id) {
+  const { logos } = await await request(`/tv/${id}/images`);
+
+  if (!logos?.length) return null;
+
+  return logos.sort((a, b) => {
+    const languageScore = (logo) =>
+      logo.iso_639_1 === "en" ? 2 : logo.iso_639_1 === null ? 1 : 0;
+
+    const score = (logo) =>
+      languageScore(logo) * 1_000_000 + logo.vote_average * 10;
+
+    return score(b) - score(a);
+  })[0].file_path;
+}
+
 export async function getTVSeason(seriesId, season) {
   const data = await request(`/tv/${seriesId}/season/${season}`);
 
