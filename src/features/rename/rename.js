@@ -1,7 +1,6 @@
 import path from "node:path";
 import { rename } from "node:fs/promises";
-import { access } from "node:fs/promises";
-
+import { exists } from "../../shared/exists.js";
 import { spinner } from "../../app/spinner.js";
 
 export async function renameFile(file) {
@@ -27,13 +26,4 @@ export async function renameFile(file) {
 
   file.path = destination;
   file.name = filename;
-}
-
-async function exists(file) {
-  try {
-    await access(file);
-    return true;
-  } catch {
-    return false;
-  }
 }

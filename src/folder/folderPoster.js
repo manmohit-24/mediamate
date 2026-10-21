@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { exists } from "../shared/exists.js";
 
 export async function renderFolderPosters(folderPath, posterPath, logoPath) {
   const outputPath = path.join(folderPath, ".icon.png");
@@ -14,14 +15,6 @@ export async function renderFolderPosters(folderPath, posterPath, logoPath) {
 
   return outputPath;
 }
-
-const exists = (p) => {
-  try {
-    return fs.statSync(p).isFile();
-  } catch {
-    return false;
-  }
-};
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ASSETS_DIR = path.join(__dirname, "assets");
