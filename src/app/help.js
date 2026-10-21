@@ -8,6 +8,7 @@ Usage:
 Modes:
   clean                 Automatically clean media files
   guided                Interactively select the correct media
+  tv-season             Process episodes from a single TV season
 
 Options:
   -r, --recursive       Scan directories recursively
@@ -19,6 +20,7 @@ Examples:
   mediamate clean Movies/ --recursive
   mediamate guided movie.mkv
   mediamate guided Movies/ --recursive
+  mediamate tv-season "Pokemon Indigo"/
 `;
 
 const MODE_HELP = {
@@ -28,6 +30,7 @@ Usage:
 
 Description:
   Automatically extract metadata from files, match media using TMDb, and clean their metadata.
+
 Options:
   -r, --recursive       Scan directories recursively
   -a, --auto            Automatically select the best match
@@ -53,6 +56,26 @@ Examples:
   mediamate guided movie.mkv
   mediamate guided Movies/ --recursive
 `,
+
+  "tv-season": `
+Usage:
+  mediamate tv-season [options] <path>
+
+Description:
+  Process episodes from a single TV season in bulk.
+  Select the TV show and season once, then match each file
+  to its episode using the episode number in its filename.
+
+  All files in the selected folder should belong to the same
+  TV show and season.
+
+Options:
+  -h, --help            Show this help message
+
+Examples:
+  mediamate tv-season "Pokemon Indigo"/
+  mediamate tv-season "Ben 10 Season 1"/
+`,
 };
 
 export function showHelp(mode = null) {
@@ -60,11 +83,8 @@ export function showHelp(mode = null) {
 
   logger.title(appConfig.appName);
 
-  if (mode && MODE_HELP[mode]) {
-    logger.text(MODE_HELP[mode].trim());
-  } else {
-    logger.text(GLOBAL_HELP.trim());
-  }
+  if (mode && MODE_HELP[mode]) logger.text(MODE_HELP[mode].trim());
+  else logger.text(GLOBAL_HELP.trim());
 
   logger.divider();
 }

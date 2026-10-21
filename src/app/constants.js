@@ -1,7 +1,7 @@
 export const MODES = {
   clean: "clean",
   guided: "guided",
-  "tv-season": "tv season",
+  "tv-season": "tv-season",
 };
 
 export const FLAGS = {
