@@ -4,14 +4,13 @@ export async function addStandardMeta(file) {
   if (!file.match) throw new Error("No media match found");
 
   const common = {
-    cover: { filename: "cover.jpg", source: file.match.poster },
     audio: (file.metadata.audio || []).map(buildAudioTrack),
     subtitles: (file.metadata.subtitles || []).map(buildSubtitleTrack),
     release_date: file.match.release_date || null,
   };
 
   if (file.mediaType === "tv") {
-    const { season, episode, title } = file.match.episode;
+    const { season, episode, title, poster } = file.match.episode;
     const seriesTitle = file.match.title;
     file.standard = {
       ...common,
@@ -20,6 +19,7 @@ export async function addStandardMeta(file) {
       season,
       episode,
       episode_title: title,
+      cover: { filename: "cover.jpg", source: poster },
       name: buildTVName(seriesTitle, season, episode, title),
       title: `${seriesTitle} - S${String(season).padStart(2, "0")}E${String(episode).padStart(2, "0")} - ${title}`,
     };
@@ -29,6 +29,7 @@ export async function addStandardMeta(file) {
       type: "movie",
       name: buildMovieName(file.match.title, file.match.release_date),
       title: file.match.title,
+      cover: { filename: "cover.jpg", source: file.match.poster },
     };
   }
 }

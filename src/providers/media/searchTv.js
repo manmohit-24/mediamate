@@ -12,16 +12,33 @@ export async function searchTVById(id) {
   return parseTV(await request(`/tv/${id}`));
 }
 
+export async function getTVSeason(seriesId, season) {
+  const data = await request(`/tv/${seriesId}/season/${season}`);
+  return {
+    id: data.id,
+    title: data.name,
+    season: data.season_number,
+    episodes: data.episodes,
+    air_date: data.air_date || null,
+    overview: data.overview || null,
+  };
+}
+
 export async function getTVEpisode(seriesId, season, episode) {
   const data = await request(
     `/tv/${seriesId}/season/${season}/episode/${episode}`,
   );
 
+  return parseEpisode(data);
+}
+
+export function parseEpisode(data) {
   return {
     id: data.id,
     title: data.name,
     season: data.season_number,
     episode: data.episode_number,
+    poster: data.still_path,
     air_date: data.air_date || null,
     overview: data.overview || null,
   };

@@ -1,0 +1,44 @@
+import { wrap } from "./wrap.js";
+import { shutdown } from "../app/shutdown.js";
+import { renameFile } from "../features/rename/rename.js";
+import { readMetadata } from "../features/metadata/read.js";
+import { addStandardMeta } from "../features/standardize/standardize.js";
+import { updateMetadata } from "../features/writer/index.js";
+import { updateTimestamps } from "../features/timestamps/timestamps.js";
+import {
+  getTvSeasonContext,
+  matchEpisode,
+} from "../features/match/tvSeason.js";
+import { logger } from "../shared/logger.js";
+
+export async function tvSeason(files, config) {
+  let seasonContext;
+
+  try {
+    seasonContext = await getTvSeasonContext("Current Folder");
+  } catch (error) {
+    logger.error("Something went wrong");
+    logger.muted(`    ${error.message}`);
+
+    return;
+  }
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    await wrap({ file, i, total: files.length }, async () => {
+      await readMetadata(file);
+
+      await matchEpisode(file, seasonContext);
+
+      await addStandardMeta(file);
+
+      await shutdown.critical(async () => {
+        await updateMetadata(file);
+
+        await renameFile(file);
+
+        await updateTimestamps(file);
+      });
+    });
+  }
+}

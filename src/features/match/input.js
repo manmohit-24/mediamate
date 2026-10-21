@@ -85,6 +85,10 @@ export async function promptTVEpisode(fileName) {
   );
 }
 
+export async function promptTVSeason(fileName) {
+  return promptTitle(fileName, "Season :");
+}
+
 async function promptTitle(fileName, label, placeholder) {
   try {
     const value = await input({

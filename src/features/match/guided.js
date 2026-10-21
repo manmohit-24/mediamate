@@ -62,8 +62,6 @@ async function guidedMatchTV(fileName) {
 
     if (!matches || !matches.length) matches = await searchTV({ title: value });
 
-    console.log(matches, fileName);
-
     if (!matches.length) throw new Error("No TV show match found");
 
     series = await spinner.suspend(() => chooseTV(matches, fileName));
