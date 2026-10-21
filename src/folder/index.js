@@ -1,11 +1,11 @@
 import path from "node:path";
-import { rename } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { downloadPoster } from "../providers/media/index.js";
 import { renderFolderPosters } from "./folderPoster.js";
 import { writeFile } from "node:fs/promises";
+import { renameFolder } from "./rename.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -15,14 +15,7 @@ export async function updateTvSeasonFolder(
   posterUrl,
   logoUrl,
 ) {
-  folderPath = path.resolve(folderPath);
-
-  const parentPath = path.dirname(folderPath);
-  const newFolderPath = path.join(parentPath, folderName);
-
-  // Rename the folder if necessary.
-  if (folderPath !== newFolderPath) await rename(folderPath, newFolderPath);
-
+  const newFolderPath = await renameFolder(folderPath, folderName);
   const { iconPath } = await generatePosters(newFolderPath, posterUrl, logoUrl);
 
   // Apply the poster as the GNOME folder icon.
