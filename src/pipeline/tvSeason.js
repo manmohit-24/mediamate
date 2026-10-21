@@ -45,7 +45,7 @@ export async function tvSeason(files, config) {
   }
 
   try {
-    const foldername = `${seasonContext.series.title} - ${seasonContext.season.title}`;
+    const foldername = `${seasonContext.season.title}`;
     const logoUrl = await getLogo(seasonContext.series.id);
 
     await updateTvSeasonFolder(

@@ -17,7 +17,7 @@ export async function renameFolder(folderPath, folderName) {
   let index = 1;
 
   while (await exists(destination)) {
-    if (path.resolve(destination) === currentPath) return;
+    if (path.resolve(destination) === currentPath) return destination;
 
     folderName = `${safeName} (${index})`;
     destination = path.join(parentDir, folderName);
@@ -25,7 +25,7 @@ export async function renameFolder(folderPath, folderName) {
   }
 
   // Nothing to rename if the sanitized name is unchanged.
-  if (destination === currentPath) return;
+  if (destination === currentPath) return destination;
 
   await rename(currentPath, destination);
 
