@@ -14,11 +14,13 @@ export async function searchTVById(id) {
 
 export async function getTVSeason(seriesId, season) {
   const data = await request(`/tv/${seriesId}/season/${season}`);
+
   return {
     id: data.id,
     title: data.name,
     season: data.season_number,
     episodes: data.episodes,
+    poster: data.poster_path,
     air_date: data.air_date || null,
     overview: data.overview || null,
   };

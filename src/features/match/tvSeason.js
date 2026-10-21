@@ -63,6 +63,8 @@ export async function matchEpisode(file, seasonContext) {
 export async function getTvSeasonContext(folderName) {
   const value = await spinner.suspend(() => promptTV(folderName));
 
+  spinner.step("Finding TV Show");
+
   let seasonNumber, series;
 
   // id format
@@ -86,6 +88,8 @@ export async function getTvSeasonContext(folderName) {
 
   if (!seasonNumber)
     seasonNumber = await spinner.suspend(() => promptTVSeason(folderName));
+
+  spinner.step("Fetching Season data");
 
   const season = await getTVSeason(series.id, seasonNumber);
   return { series, season };

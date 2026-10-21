@@ -4,6 +4,7 @@ import { renameFile } from "../features/rename/rename.js";
 import { readMetadata } from "../features/metadata/read.js";
 import { addStandardMeta } from "../features/standardize/standardize.js";
 import { updateMetadata } from "../features/writer/index.js";
+import { updateTvSeasonFolder } from "../features/writer/folder.js";
 import { updateTimestamps } from "../features/timestamps/timestamps.js";
 import {
   getTvSeasonContext,
@@ -40,5 +41,20 @@ export async function tvSeason(files, config) {
         await updateTimestamps(file);
       });
     });
+  }
+
+  try {
+    const foldername = `${seasonContext.series.title} - ${seasonContext.season.title}`;
+
+    await updateTvSeasonFolder(
+      config.path,
+      foldername,
+      seasonContext.season.poster,
+    );
+  } catch (error) {
+    logger.error("Error occured while updating folder");
+    logger.muted(`    ${error.message}`);
+
+    return;
   }
 }
