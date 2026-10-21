@@ -4,7 +4,7 @@ import { renameFile } from "../features/rename/rename.js";
 import { readMetadata } from "../features/metadata/read.js";
 import { addStandardMeta } from "../features/standardize/standardize.js";
 import { updateMetadata } from "../features/writer/index.js";
-import { updateTvSeasonFolder } from "../folder/index.js";
+import { updateTvSeasonFolder } from "../features/folder/index.js";
 import { updateTimestamps } from "../features/timestamps/timestamps.js";
 import {
   getTvSeasonContext,

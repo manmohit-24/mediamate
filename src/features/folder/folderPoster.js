@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { exists } from "../shared/exists.js";
+import { exists } from "../../shared/exists.js";
 
 export async function renderFolderPosters(folderPath, posterPath, logoPath) {
   const outputPath = path.join(folderPath, ".icon.png");

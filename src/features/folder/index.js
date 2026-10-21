@@ -2,7 +2,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { downloadPoster } from "../providers/media/index.js";
+import { downloadPoster } from "../../providers/media/index.js";
 import { renderFolderPosters } from "./folderPoster.js";
 import { writeFile } from "node:fs/promises";
 import { renameFolder } from "./rename.js";

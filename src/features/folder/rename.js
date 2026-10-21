@@ -1,7 +1,7 @@
 import path from "node:path";
 import { rename } from "node:fs/promises";
-import { exists } from "../shared/exists.js";
-import { spinner } from "../app/spinner.js";
+import { exists } from "../../shared/exists.js";
+import { spinner } from "../../app/spinner.js";
 
 export async function renameFolder(folderPath, folderName) {
   spinner.step("Renaming folder");
