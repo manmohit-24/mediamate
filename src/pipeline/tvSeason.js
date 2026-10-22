@@ -17,7 +17,7 @@ export async function tvSeason(files, config) {
   let seasonContext;
 
   try {
-    seasonContext = await getTvSeasonContext("Current Folder");
+    seasonContext = await getTvSeasonContext();
   } catch (error) {
     logger.error("Error occured while fetching season/tv-show");
     logger.muted(`    ${error.message}`);

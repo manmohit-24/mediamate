@@ -1,5 +1,4 @@
 import { spinner } from "../../app/spinner.js";
-import { promptTV, promptTVSeason } from "./input.js";
 import { parseEpisodeFilename } from "./episode.js";
 import { resolveTitle } from "../../shared/resolve/title.js";
 import {
@@ -8,7 +7,8 @@ import {
   searchTV,
   searchTVById,
 } from "../../providers/media/searchTv.js";
-import { chooseTV } from "./input.js";
+
+import { chooseTV, promptTV, promptTVSeason } from "../../shared/input/tv.js";
 
 function extractEpisodeNumber(filename) {
   const base = filename.replace(/\.[^.]+$/, "");
@@ -60,8 +60,8 @@ export async function matchEpisode(file, seasonContext) {
   };
 }
 
-export async function getTvSeasonContext(folderName) {
-  const value = await spinner.suspend(() => promptTV(folderName));
+export async function getTvSeasonContext() {
+  const value = await promptTV();
 
   spinner.step("Finding TV Show");
 
@@ -83,11 +83,10 @@ export async function getTvSeasonContext(folderName) {
 
     if (!matches.length) throw new Error("No TV show match found");
 
-    series = await spinner.suspend(() => chooseTV(matches, value));
+    series = await chooseTV(matches, value);
   }
 
-  if (!seasonNumber)
-    seasonNumber = await spinner.suspend(() => promptTVSeason(folderName));
+  if (!seasonNumber) seasonNumber = await promptTVSeason(folderName);
 
   spinner.step("Fetching Season data");
 

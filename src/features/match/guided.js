@@ -1,11 +1,11 @@
+import { choose } from "../../shared/input/utils.js";
+import { promptMovie, chooseMovie } from "../../shared/input/movie.js";
 import {
-  chooseMediaType,
-  chooseMovie,
   chooseTV,
-  promptMovie,
   promptTV,
-  promptTVEpisode,
-} from "./input.js";
+  promptTVSeasonEpisode,
+} from "../../shared/input/tv.js";
+
 import { parseEpisodeFilename, attachEpisode } from "./episode.js";
 
 import {
@@ -18,7 +18,11 @@ import {
 import { spinner } from "../../app/spinner.js";
 
 export async function guidedMatch(file) {
-  const mediaType = await chooseMediaType(["TV", "Movie"]);
+  const mediaType = await choose(
+    "Is it a Movie or TV-Show ?",
+    ["TV", "Movie"],
+    false,
+  );
 
   spinner.step("Finding a Match");
 
@@ -36,7 +40,7 @@ const isIdFormat = (value) => /^\d+$/.test(value);
 
 // movies
 async function guidedMatchMovie(fileName) {
-  const value = await spinner.suspend(() => promptMovie(fileName));
+  const value = await promptMovie(fileName);
 
   if (isIdFormat(value)) return await searchMovieById(Number(value));
 
@@ -44,12 +48,12 @@ async function guidedMatchMovie(fileName) {
 
   if (matches.length === 0) throw new Error("No match found");
 
-  return await spinner.suspend(() => chooseMovie(matches, fileName));
+  return await chooseMovie(matches, fileName);
 }
 
 // tv shows
 async function guidedMatchTV(fileName) {
-  const value = await spinner.suspend(() => promptTV(fileName));
+  const value = await promptTV(fileName);
 
   let parsed, series;
 
@@ -64,11 +68,11 @@ async function guidedMatchTV(fileName) {
 
     if (!matches.length) throw new Error("No TV show match found");
 
-    series = await spinner.suspend(() => chooseTV(matches, fileName));
+    series = await chooseTV(matches, fileName);
   }
 
   if (!parsed) {
-    const val = await spinner.suspend(() => promptTVEpisode(fileName));
+    const val = await promptTVSeasonEpisode(fileName);
     parsed = parseEpisodeFilename(series.title + "-" + val);
   }
 

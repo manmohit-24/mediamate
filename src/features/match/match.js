@@ -1,11 +1,11 @@
 import { parseEpisodeFilename, attachEpisode } from "./episode.js";
 import { spinner } from "../../app/spinner.js";
 
-import { chooseMovie, chooseTV } from "./input.js";
+import { chooseMovie } from "../../shared/input/movie.js";
+import { chooseTV } from "../../shared/input/tv.js";
 
 import { resolveTitle } from "../../shared/resolve/title.js";
 import { searchMovie, searchTV } from "../../providers/media/index.js";
-
 export async function match(file, auto) {
   const parsed =
     parseEpisodeFilename(file.name) ??
@@ -34,7 +34,7 @@ export async function matchMovie(auto, title, fileName) {
   }
 
   if (auto) return matches[0];
-  return await spinner.suspend(() => chooseMovie(matches, fileName));
+  return await chooseMovie(matches, fileName);
 }
 
 export async function matchTv(auto, parsed) {
@@ -44,8 +44,7 @@ export async function matchTv(auto, parsed) {
 
   let series = matches[0];
 
-  if (!auto)
-    series = await spinner.suspend(() => chooseTV(matches, parsed.fileName));
+  if (!auto) series = await chooseTV(matches, parsed.fileName);
 
   return await attachEpisode(series, parsed);
 }
