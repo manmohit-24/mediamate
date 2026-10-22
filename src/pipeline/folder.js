@@ -2,7 +2,6 @@ import { shutdown } from "../app/shutdown.js";
 
 import {
   manualUpdateFolder,
-  updateFolderIcon,
   updateTvSeasonFolder,
 } from "../features/folder/index.js";
 import { getTvSeries } from "../features/match/tvSeason.js";
@@ -17,9 +16,6 @@ import {
   getMovieLogo,
   searchFranchise,
 } from "../providers/media/searchMovie.js";
-import { scanFolders } from "../features/scan/folders.js";
-import { exists } from "../shared/exists.js";
-import path from "node:path";
 
 export async function folder(config) {
   try {
@@ -71,19 +67,6 @@ export async function folder(config) {
 
     if (folderType !== "Manual")
       await updateTvSeasonFolder(config.path, foldername, posterUrl, logoUrl);
-
-    // since we renamed a folder, its child folders might had lost their poster-folder link
-    // fix child folders' icons
-
-    spinner.step("Clenuing up...");
-    const folders = await scanFolders(config.path);
-
-    for (const f of folders) {
-      const iconPath = path.join(f, ".icon.png");
-      const res = await exists(iconPath);
-      if (!res) continue;
-      updateFolderIcon(f, iconPath);
-    }
   } catch (error) {
     logger.error("Error occured while processing folder");
     logger.muted(`    ${error.message}`);

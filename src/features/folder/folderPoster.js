@@ -3,8 +3,32 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { exists } from "../../shared/exists.js";
+import { downloadPoster } from "../../providers/media/index.js";
+import { writeFile } from "node:fs/promises";
+import { spinner } from "../../app/spinner.js";
+
+export async function generatePosters(folderPath, posterUrl, logoUrl) {
+  const posterPath = path.join(folderPath, ".poster.png");
+  const poster = await downloadPoster(posterUrl);
+
+  await writeFile(posterPath, poster.data);
+
+  let logoPath = null;
+
+  if (logoUrl) {
+    logoPath = path.join(folderPath, ".logo.png");
+    const logo = await downloadPoster(logoUrl);
+    writeFile(logoPath, logo.data);
+  }
+
+  const iconPath = await renderFolderPosters(folderPath, posterPath, logoPath);
+
+  return { posterPath, logoPath, iconPath };
+}
 
 export async function renderFolderPosters(folderPath, posterPath, logoPath) {
+  spinner.step("Generating icon");
+
   const outputPath = path.join(folderPath, ".icon.png");
 
   await render({
