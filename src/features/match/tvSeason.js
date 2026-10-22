@@ -2,7 +2,7 @@ import { spinner } from "../../app/spinner.js";
 import { parseEpisodeFilename } from "./episode.js";
 import { resolveTitle } from "../../shared/resolve/title.js";
 import {
-  getTVSeason,
+  searchTVSeason,
   parseEpisode,
   searchTV,
   searchTVById,
@@ -60,7 +60,7 @@ export async function matchEpisode(file, seasonContext) {
   };
 }
 
-export async function getTvSeasonContext() {
+export async function getTvSeries() {
   const value = await promptTV();
 
   spinner.step("Finding TV Show");
@@ -86,10 +86,17 @@ export async function getTvSeasonContext() {
     series = await chooseTV(matches, value);
   }
 
-  if (!seasonNumber) seasonNumber = await promptTVSeason(folderName);
+  return { series, seasonNumber };
+}
+
+export async function getTvSeasonContext() {
+  const { series, seasonNumber } = await getTvSeries();
+
+  if (!seasonNumber) seasonNumber = await promptTVSeason(series.title);
 
   spinner.step("Fetching Season data");
 
-  const season = await getTVSeason(series.id, seasonNumber);
+  const season = await searchTVSeason(series.id, seasonNumber);
+
   return { series, season };
 }

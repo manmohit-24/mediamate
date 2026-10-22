@@ -28,7 +28,7 @@ export async function getLogo(id) {
   })[0].file_path;
 }
 
-export async function getTVSeason(seriesId, season) {
+export async function searchTVSeason(seriesId, season) {
   const data = await request(`/tv/${seriesId}/season/${season}`);
 
   return {

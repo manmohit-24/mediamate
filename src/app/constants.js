@@ -2,6 +2,7 @@ export const MODES = {
   clean: "clean",
   guided: "guided",
   "tv-season": "tv-season",
+  folder: "folder",
 };
 
 export const FLAGS = {
