@@ -7,7 +7,7 @@ import { MODES, FLAGS } from "./app/constants.js";
 import { showHelp } from "./app/help.js";
 import { logger } from "./shared/logger.js";
 
-import { scan } from "./features/scan/scan.js";
+import { scanFiles } from "./features/scan/files.js";
 
 import { runPipeline } from "./pipeline/index.js";
 
@@ -74,11 +74,11 @@ spinner.start("");
 try {
   spinner.step("Scanning Files");
 
-  files = await scan(config.path, config.recursive);
+  files = await scanFiles(config.path, config.recursive);
 
   logger.success(`Found ${files.length} media files`);
 } catch (err) {
-  spinner.fail("Failed to scan library");
+  spinner.fail("Failed to scanFiles library");
   logger.error(err.message);
   process.exit(1);
 }

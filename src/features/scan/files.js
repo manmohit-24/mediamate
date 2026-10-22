@@ -7,7 +7,7 @@ function isSupportedMedia(extension) {
   return SUPPORTED_EXTENSIONS.has(extension.toLowerCase());
 }
 
-export async function scan(inputPath, recursive) {
+export async function scanFiles(inputPath, recursive) {
   if (!inputPath) throw new Error("Path is required.");
 
   const files = [];

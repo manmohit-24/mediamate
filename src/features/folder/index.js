@@ -18,17 +18,20 @@ export async function updateTvSeasonFolder(
   const newFolderPath = await renameFolder(folderPath, folderName);
   const { iconPath } = await generatePosters(newFolderPath, posterUrl, logoUrl);
 
-  // Apply the poster as the GNOME folder icon.
+  await updateFolderIcon(newFolderPath, iconPath);
+
+  return newFolderPath;
+}
+
+export async function updateFolderIcon(folderPath, iconPath = ".icon.png") {
   await execFileAsync("gio", [
     "set",
     "-t",
     "string",
-    newFolderPath,
+    folderPath,
     "metadata::custom-icon",
     pathToFileURL(iconPath).href,
   ]);
-
-  return newFolderPath;
 }
 
 export async function generatePosters(folderPath, posterUrl, logoUrl) {
