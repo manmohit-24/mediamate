@@ -11,7 +11,7 @@ import {
   matchEpisode,
 } from "../features/match/tvSeason.js";
 import { logger } from "../shared/logger.js";
-import { getLogo } from "../providers/media/searchTv.js";
+import { getTvLogo } from "../providers/media/searchTv.js";
 
 export async function tvSeason(files, config) {
   let seasonContext;
@@ -46,7 +46,7 @@ export async function tvSeason(files, config) {
 
   try {
     const foldername = `${seasonContext.season.title}`;
-    const logoUrl = await getLogo(seasonContext.series.id);
+    const logoUrl = await getTvLogo(seasonContext.series.id);
 
     await updateTvSeasonFolder(
       config.path,

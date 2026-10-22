@@ -31,7 +31,7 @@ async function render({
     throw new Error("Both input and output paths are required.");
 
   poster = path.resolve(poster);
-  logo = path.resolve(logo);
+  logo = logo ? path.resolve(logo) : null;
   output = path.resolve(output);
 
   if (!exists(poster)) throw new Error(`poster not found: ${poster}`);

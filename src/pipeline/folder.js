@@ -4,21 +4,26 @@ import { updateTvSeasonFolder } from "../features/folder/index.js";
 import { getTvSeries } from "../features/match/tvSeason.js";
 
 import { logger } from "../shared/logger.js";
-import { getLogo, searchTVSeason } from "../providers/media/searchTv.js";
+import { getTvLogo, searchTVSeason } from "../providers/media/searchTv.js";
 import { promptTVSeason } from "../shared/input/tv.js";
 import { spinner } from "../app/spinner.js";
-import { choose } from "../shared/input/utils.js";
+import { choose, chooseMedia, prompt } from "../shared/input/utils.js";
+import { guidedMatchMovie } from "../features/match/guided.js";
+import {
+  getMovieLogo,
+  searchFranchise,
+} from "../providers/media/searchMovie.js";
 
 export async function folder(config) {
   try {
-    const mediaType = await choose(
-      "Is it a Movie or TV-Show ?",
-      ["TV", "Movie"],
+    const folderType = await choose(
+      "What does this folder contains ?",
+      ["TV", "Movie", "Franchise"],
       false,
     );
     let foldername, posterUrl, logoUrl;
 
-    if (mediaType === "TV") {
+    if (folderType === "TV") {
       let { series, seasonNumber } = await getTvSeries();
 
       if (!seasonNumber) {
@@ -39,9 +44,19 @@ export async function folder(config) {
         posterUrl = series.poster;
       }
 
-      logoUrl = await getLogo(series.id);
+      logoUrl = await getTvLogo(series.id);
+    } else if (folderType === "Movie") {
+      const movie = await guidedMatchMovie();
+      foldername = movie.title;
+      posterUrl = movie.poster;
+      logoUrl = await getMovieLogo(movie.id);
     } else {
-      return;
+      const input = await prompt("Name of Franchise :");
+      const matches = await searchFranchise({ title: input });
+      const franchise = await chooseMedia(matches, input, (item) => item.title);
+
+      foldername = franchise.title;
+      posterUrl = franchise.poster;
     }
 
     await updateTvSeasonFolder(config.path, foldername, posterUrl, logoUrl);

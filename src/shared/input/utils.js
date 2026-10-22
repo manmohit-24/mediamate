@@ -6,7 +6,7 @@ const SKIP = Symbol("skip");
 
 export async function chooseMedia(matches, name, label) {
   return await choose(
-    `Multiple matches found for ${name}`,
+    `Multiple matches found ${name ? `for ${name}` : ""}`,
     matches,
     true,
     label,

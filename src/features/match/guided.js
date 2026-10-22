@@ -39,7 +39,7 @@ export async function guidedMatch(file) {
 const isIdFormat = (value) => /^\d+$/.test(value);
 
 // movies
-async function guidedMatchMovie(fileName) {
+export async function guidedMatchMovie(fileName) {
   const value = await promptMovie(fileName);
 
   if (isIdFormat(value)) return await searchMovieById(Number(value));

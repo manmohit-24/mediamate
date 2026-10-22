@@ -9,6 +9,7 @@ Modes:
   clean                 Automatically clean media files
   guided                Interactively select the correct media
   tv-season             Process episodes from a single TV season
+  folder                Updates folder name and icon
 
 Options:
   -r, --recursive       Scan directories recursively
@@ -68,6 +69,25 @@ Description:
 
   All files in the selected folder should belong to the same
   TV show and season.
+
+Options:
+  -h, --help            Show this help message
+
+Examples:
+  mediamate tv-season "Pokemon Indigo"/
+  mediamate tv-season "Ben 10 Season 1"/
+`,
+
+  "tv-season": `
+Usage:
+  mediamate tv-season [options] <path>
+
+Description:
+  Updates folder name and icon to suitable posters generated folder icons.
+  Select the type of media that folder contain: movie, tv-show or franchise.
+  Search for suitable title and select the one we want to choose
+  The folder icon for that folder will be generated and implemented to
+  folder along with renaming it to official name.
 
 Options:
   -h, --help            Show this help message

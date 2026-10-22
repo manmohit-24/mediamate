@@ -12,7 +12,7 @@ export async function searchTVById(id) {
   return parseTV(await request(`/tv/${id}`));
 }
 
-export async function getLogo(id) {
+export async function getTvLogo(id) {
   const { logos } = await await request(`/tv/${id}/images`);
 
   if (!logos?.length) return null;
