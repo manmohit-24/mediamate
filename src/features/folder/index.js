@@ -6,6 +6,10 @@ import { downloadPoster } from "../../providers/media/index.js";
 import { renderFolderPosters } from "./folderPoster.js";
 import { writeFile } from "node:fs/promises";
 import { renameFolder } from "./rename.js";
+import { prompt } from "../../shared/input/utils.js";
+import { spinner } from "../../app/spinner.js";
+import { exists } from "../../shared/exists.js";
+import { logger } from "../../shared/logger.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -23,7 +27,7 @@ export async function updateTvSeasonFolder(
   return newFolderPath;
 }
 
-export async function updateFolderIcon(folderPath, iconPath = ".icon.png") {
+export async function updateFolderIcon(folderPath, iconPath) {
   await execFileAsync("gio", [
     "set",
     "-t",
@@ -32,6 +36,37 @@ export async function updateFolderIcon(folderPath, iconPath = ".icon.png") {
     "metadata::custom-icon",
     pathToFileURL(iconPath).href,
   ]);
+}
+
+export async function manualUpdateFolder(folderPath) {
+  let newFolderPath = folderPath;
+
+  try {
+    const name = await prompt("Enter a name for folder :");
+    if (name) newFolderPath = await renameFolder(folderPath, name);
+  } catch (error) {}
+
+  spinner.step("Searching for .poster.png in folder");
+  const posterPath = path.join(newFolderPath, ".poster.png");
+
+  if (!(await exists(posterPath)))
+    throw new Error("Poster image not found as '.poster.png'");
+
+  logger.success("Poster Found");
+
+  spinner.step("Searching for .logo.png in folder");
+  const logoPath = path.join(newFolderPath, ".logo.png");
+
+  if (!(await exists(logoPath)))
+    logger.error(
+      "Logo image not found as '.poster.png', processing without logo",
+    );
+  else logger.success("Logo Found");
+
+  const iconPath = await renderFolderPosters(folderPath, posterPath, logoPath);
+  logger.success("Folder icon generated as .icon.png");
+
+  await updateFolderIcon(folderPath, iconPath);
 }
 
 export async function generatePosters(folderPath, posterUrl, logoUrl) {

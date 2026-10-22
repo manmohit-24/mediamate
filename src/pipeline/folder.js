@@ -1,6 +1,7 @@
 import { shutdown } from "../app/shutdown.js";
 
 import {
+  manualUpdateFolder,
   updateFolderIcon,
   updateTvSeasonFolder,
 } from "../features/folder/index.js";
@@ -23,10 +24,11 @@ import path from "node:path";
 export async function folder(config) {
   try {
     const folderType = await choose(
-      "What does this folder contains ?",
-      ["TV", "Movie", "Franchise"],
+      "Choose mode :",
+      ["TV", "Movie", "Franchise", "Manual"],
       false,
     );
+
     let foldername, posterUrl, logoUrl;
 
     if (folderType === "TV") {
@@ -56,20 +58,24 @@ export async function folder(config) {
       foldername = movie.title;
       posterUrl = movie.poster;
       logoUrl = await getMovieLogo(movie.id);
-    } else {
+    } else if (folderType === "Franchise") {
       const input = await prompt("Name of Franchise :");
       const matches = await searchFranchise({ title: input });
       const franchise = await chooseMedia(matches, input, (item) => item.title);
 
       foldername = franchise.title;
       posterUrl = franchise.poster;
-    }
+    } else if (folderType === "Manual") {
+      await manualUpdateFolder(config.path);
+    } else throw new Error("Unsupported mode selected");
 
-    await updateTvSeasonFolder(config.path, foldername, posterUrl, logoUrl);
+    if (folderType !== "Manual")
+      await updateTvSeasonFolder(config.path, foldername, posterUrl, logoUrl);
 
     // since we renamed a folder, its child folders might had lost their poster-folder link
     // fix child folders' icons
 
+    spinner.step("Clenuing up...");
     const folders = await scanFolders(config.path);
 
     for (const f of folders) {
