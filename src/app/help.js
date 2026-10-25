@@ -78,7 +78,7 @@ Examples:
   mediamate tv-season "Ben 10 Season 1"/
 `,
 
-  "tv-season": `
+  "folder": `
 Usage:
   mediamate tv-season [options] <path>
 

@@ -90,7 +90,7 @@ export async function getTvSeries() {
 }
 
 export async function getTvSeasonContext() {
-  const { series, seasonNumber } = await getTvSeries();
+  let { series, seasonNumber } = await getTvSeries();
 
   if (!seasonNumber) seasonNumber = await promptTVSeason(series.title);
 
