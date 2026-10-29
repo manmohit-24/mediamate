@@ -17,8 +17,9 @@ export async function attachEpisode(series, parsed) {
   };
 }
 
-export function parseEpisodeFilename(fileName) {
-  const base = fileName.replace(/\.[^.]+$/, "");
+export function parseEpisodeFilename(name) {
+  if (!name) return "";
+  const base = name.replace(/\.[^.]+$/, "");
 
   const patterns = [
     // Show.S01E03, Show_S01_E03, Show S01E03, etc.
@@ -40,7 +41,7 @@ export function parseEpisodeFilename(fileName) {
       season: Number(match[2]),
       episode: Number(match[3]),
       episodeEnd: match[4] ? Number(match[4]) : null,
-      fileName: fileName,
+      fileName: name,
     };
   }
 
