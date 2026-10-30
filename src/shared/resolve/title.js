@@ -5,6 +5,7 @@ import {
   truncateReleaseInfo,
   cleanTitle,
   extractYear,
+  removeExtension,
 } from "./cleaners.js";
 
 export function resolveTitle(title) {
@@ -13,6 +14,7 @@ export function resolveTitle(title) {
 
   let resolved = title;
 
+  resolved = removeExtension(resolved); // for filenames with extensions
   resolved = removeWebsitePrefix(resolved);
   resolved = normalizeSeparators(resolved);
   resolved = truncateReleaseInfo(resolved, year);

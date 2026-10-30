@@ -1,3 +1,6 @@
+import { SUPPORTED_EXTENSIONS } from "../../app/constants.js";
+import path from "node:path";
+
 const STOP_WORDS = [
   "2160p",
   "1080p",
@@ -50,13 +53,20 @@ export function removeWebsitePrefix(text) {
   return text.replace(/^.*?\|\s*/, "");
 }
 
+export function removeExtension(text) {
+  const ext = path.extname(text);
+
+  return SUPPORTED_EXTENSIONS.has(ext.toLowerCase())
+    ? text.slice(0, -ext.length)
+    : text;
+}
+
 export function normalizeSeparators(text) {
   return text.replace(/[._]/g, " ").replace(/\s+/g, " ").trim();
 }
 
 export function extractYear(text) {
-  const match = text.match(/\b(19|20)\d{2}\b/);
-
+  const match = text.match(/(?<!\d)(19|20)\d{2}(?!\d)/);
   return match ? Number(match[0]) : null;
 }
 
