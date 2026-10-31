@@ -3,13 +3,13 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { exists } from "../../shared/exists.js";
-import { downloadPoster } from "../../providers/media/index.js";
+import { downloadImage } from "../../api/downloadImage.js";
 import { writeFile } from "node:fs/promises";
 import { spinner } from "../../app/spinner.js";
 
 export async function generatePosters(folderPath, posterUrl, logoUrl) {
   const posterPath = path.join(folderPath, ".poster.png");
-  const poster = await downloadPoster(posterUrl);
+  const poster = await downloadImage(posterUrl);
 
   await writeFile(posterPath, poster.data);
 
@@ -17,7 +17,7 @@ export async function generatePosters(folderPath, posterUrl, logoUrl) {
 
   if (logoUrl) {
     logoPath = path.join(folderPath, ".logo.png");
-    const logo = await downloadPoster(logoUrl);
+    const logo = await downloadImage(logoUrl);
     writeFile(logoPath, logo.data);
   }
 

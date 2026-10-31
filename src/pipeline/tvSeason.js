@@ -11,7 +11,6 @@ import {
   matchEpisode,
 } from "../features/match/tvSeason.js";
 import { logger } from "../shared/logger.js";
-import { getTvLogo } from "../providers/media/searchTv.js";
 
 export async function tvSeason(files, config) {
   let seasonContext;
@@ -46,13 +45,12 @@ export async function tvSeason(files, config) {
 
   try {
     const foldername = `${seasonContext.season.title}`;
-    const logoUrl = await getTvLogo(seasonContext.series.id);
 
     await updateTvSeasonFolder(
       config.path,
       foldername,
       seasonContext.season.poster,
-      logoUrl,
+      seasonContext.series.logo,
     );
   } catch (error) {
     logger.error("Error occured while updating folder");

@@ -1,4 +1,4 @@
-import { request } from "./request.js";
+import { request, parsePosterUrl } from "./client.js";
 
 export async function searchTV({ title, year }) {
   const data = await request("/search/tv", {
@@ -12,12 +12,12 @@ export async function searchTVById(id) {
   return parseTV(await request(`/tv/${id}`));
 }
 
-export async function getTvLogo(id) {
+export async function getTVLogo(id) {
   const { logos } = await await request(`/tv/${id}/images`);
 
   if (!logos?.length) return null;
 
-  return logos.sort((a, b) => {
+  const best = logos.sort((a, b) => {
     const languageScore = (logo) =>
       logo.iso_639_1 === "en" ? 2 : logo.iso_639_1 === null ? 1 : 0;
 
@@ -26,17 +26,23 @@ export async function getTvLogo(id) {
 
     return score(b) - score(a);
   })[0].file_path;
+
+  return parsePosterUrl(best);
 }
 
 export async function searchTVSeason(seriesId, season) {
   const data = await request(`/tv/${seriesId}/season/${season}`);
 
+  const episodes = (data.episodes ?? [])
+    .map(parseEpisode)
+    .sort((a, b) => a.episode - b.episode);
+
   return {
     id: data.id,
     title: data.name,
     season: data.season_number,
-    episodes: data.episodes,
-    poster: data.poster_path,
+    episodes: episodes,
+    poster: parsePosterUrl(data.poster_path),
     air_date: data.air_date || null,
     overview: data.overview || null,
   };
@@ -56,7 +62,7 @@ export function parseEpisode(data) {
     title: data.name,
     season: data.season_number,
     episode: data.episode_number,
-    poster: data.still_path,
+    poster: parsePosterUrl(data.still_path),
     air_date: data.air_date || null,
     overview: data.overview || null,
   };
@@ -69,6 +75,6 @@ function parseTV(show) {
     title: show.name,
     first_air_date: show.first_air_date || null,
     release_date: show.first_air_date || null,
-    poster: show.poster_path,
+    poster: parsePosterUrl(show.poster_path),
   };
 }

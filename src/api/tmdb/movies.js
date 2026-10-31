@@ -1,4 +1,4 @@
-import { request } from "./request.js";
+import { request, parsePosterUrl } from "./client.js";
 
 export async function searchMovie({ title, year }) {
   const data = await request("/search/movie", { query: title, year });
@@ -9,7 +9,7 @@ export async function searchFranchise({ title, year }) {
   const data = await request("/search/collection", { query: title, year });
 
   return data.results.map((item) => {
-    return { title: item.name, poster: item.poster_path };
+    return { title: item.name, poster: parsePosterUrl(item.poster_path) };
   });
 }
 
@@ -41,6 +41,6 @@ function parseMovie(movie) {
     id: movie.id,
     title: movie.title,
     release_date: movie.release_date || null,
-    poster: movie.poster_path,
+    poster: parsePosterUrl(movie.poster_path),
   };
 }

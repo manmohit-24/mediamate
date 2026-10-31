@@ -2,7 +2,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { writeFile, unlink } from "node:fs/promises";
 
-import { downloadPoster } from "../../providers/media/index.js";
+import { downloadImage } from "../../api/downloadImage.js";
 import { spinner } from "../../app/spinner.js";
 
 import * as mkv from "./mkv.js";
@@ -17,7 +17,7 @@ export async function updateMetadata(file) {
   try {
     if (file.standard.cover?.source) {
       const { filename, source } = file.standard.cover;
-      const poster = await downloadPoster(source);
+      const poster = await downloadImage(source);
 
       tempPath = path.join(
         tmpdir(),

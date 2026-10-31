@@ -7,15 +7,13 @@ import {
 import { getTvSeries } from "../features/match/tvSeason.js";
 
 import { logger } from "../shared/logger.js";
-import { getTvLogo, searchTVSeason } from "../providers/media/searchTv.js";
 import { promptTVSeason } from "../shared/input/tv.js";
 import { spinner } from "../app/spinner.js";
 import { choose, chooseMedia, prompt } from "../shared/input/utils.js";
 import { guidedMatchMovie } from "../features/match/guided.js";
-import {
-  getMovieLogo,
-  searchFranchise,
-} from "../providers/media/searchMovie.js";
+
+import { getMovieLogo, searchFranchise } from "../api/tmdb/movies.js";
+import { getTVLogo, searchTVSeason } from "../api/tvdb/tv.js";
 
 export async function folder(config) {
   try {
@@ -48,7 +46,7 @@ export async function folder(config) {
         posterUrl = series.poster;
       }
 
-      logoUrl = await getTvLogo(series.id);
+      logoUrl = await getTVLogo(series.id);
     } else if (folderType === "Movie") {
       const movie = await guidedMatchMovie();
       foldername = movie.title;

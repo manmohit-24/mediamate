@@ -19,6 +19,7 @@ export async function clean(files, config) {
       await readMetadata(file);
 
       await match(file, config.auto);
+      console.log(file);
 
       await addStandardMeta(file);
 

@@ -8,12 +8,8 @@ import {
 
 import { parseEpisodeFilename, attachEpisode } from "./episode.js";
 
-import {
-  searchTV,
-  searchTVById,
-  searchMovie,
-  searchMovieById,
-} from "../../providers/media/index.js";
+import { searchMovie, searchMovieById } from "../../api/tmdb/movies.js";
+import { searchTV, searchTVById } from "../../api/tvdb/tv.js";
 
 import { spinner } from "../../app/spinner.js";
 

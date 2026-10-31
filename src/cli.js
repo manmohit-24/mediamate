@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
-import "./app/shutdown.js";
 import { appConfig } from "./app/config.js";
+import "./app/shutdown.js";
+import "./app/cache.js";
 import { spinner } from "./app/spinner.js";
 import { MODES, FLAGS } from "./app/constants.js";
 import { showHelp } from "./app/help.js";

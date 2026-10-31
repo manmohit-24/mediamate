@@ -3,10 +3,10 @@ import { parseEpisodeFilename } from "./episode.js";
 import { resolveTitle } from "../../shared/resolve/title.js";
 import {
   searchTVSeason,
-  parseEpisode,
   searchTV,
   searchTVById,
-} from "../../providers/media/searchTv.js";
+  getTVLogo,
+} from "../../api/tvdb/tv.js";
 
 import { chooseTV, promptTV, promptTVSeason } from "../../shared/input/tv.js";
 
@@ -41,9 +41,7 @@ export async function matchEpisode(file, seasonContext) {
 
   const { series, season } = seasonContext;
 
-  const episode = season.episodes.find(
-    (ep) => ep.episode_number === episodeNumber,
-  );
+  const episode = season.episodes.find((ep) => ep.episode === episodeNumber);
 
   if (!episode)
     throw new Error(
@@ -54,7 +52,7 @@ export async function matchEpisode(file, seasonContext) {
   file.match = {
     ...series,
     type: "tv",
-    episode: parseEpisode(episode),
+    episode: episode,
     title: series.title,
     release_date: episode.air_date || series.first_air_date || null,
   };
@@ -91,6 +89,8 @@ export async function getTvSeries() {
 
 export async function getTvSeasonContext() {
   let { series, seasonNumber } = await getTvSeries();
+
+  series.logo = await getTVLogo(series.id);
 
   if (!seasonNumber) seasonNumber = await promptTVSeason(series.title);
 

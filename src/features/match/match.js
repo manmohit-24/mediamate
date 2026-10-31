@@ -5,7 +5,10 @@ import { chooseMovie } from "../../shared/input/movie.js";
 import { chooseTV } from "../../shared/input/tv.js";
 
 import { resolveTitle } from "../../shared/resolve/title.js";
-import { searchMovie, searchTV } from "../../providers/media/index.js";
+
+import { searchMovie } from "../../api/tmdb/movies.js";
+import { searchTV } from "../../api/tvdb/tv.js";
+
 export async function match(file, auto) {
   const parsed =
     parseEpisodeFilename(file.name) ??
@@ -24,8 +27,8 @@ export async function match(file, auto) {
 
 export async function matchMovie(auto, title, fileName) {
   let matches = [];
-  if (title) matches = await searchMovie(resolveTitle(title));
 
+  if (title) matches = await searchMovie(resolveTitle(title));
   if (matches.length === 0) {
     if (!fileName) throw new Error("Either title or name is required");
 
