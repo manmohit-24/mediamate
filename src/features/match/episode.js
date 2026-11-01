@@ -1,4 +1,4 @@
-import { getTVEpisode } from "../../api/tvdb/tv.js";
+import { getTVEpisode } from "../../api/tv.js";
 
 export async function attachEpisode(series, parsed) {
   if (!parsed)

@@ -13,7 +13,7 @@ export async function searchTVById(id) {
 }
 
 export async function getTVLogo(id) {
-  const { logos } = await await request(`/tv/${id}/images`);
+  const { logos } = await request(`/tv/${id}/images`);
 
   if (!logos?.length) return null;
 
@@ -77,4 +77,17 @@ function parseTV(show) {
     release_date: show.first_air_date || null,
     poster: parsePosterUrl(show.poster_path),
   };
+}
+
+export async function getAllTVEpisodes(id) {
+  const series = await request(`/tv/${id}`);
+  const seasons = (series.seasons ?? []).filter(
+    (season) => season.season_number >= 0,
+  );
+
+  const results = await Promise.all(
+    seasons.map((season) => searchTVSeason(id, season.season_number)),
+  );
+
+  return results.flatMap((season) => season.episodes);
 }

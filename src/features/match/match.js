@@ -7,7 +7,7 @@ import { chooseTV } from "../../shared/input/tv.js";
 import { resolveTitle } from "../../shared/resolve/title.js";
 
 import { searchMovie } from "../../api/tmdb/movies.js";
-import { searchTV } from "../../api/tvdb/tv.js";
+import { searchTV } from "../../api/tv.js";
 
 export async function match(file, auto) {
   const parsed =

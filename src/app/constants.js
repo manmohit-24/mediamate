@@ -3,6 +3,7 @@ export const MODES = {
   guided: "guided",
   "tv-season": "tv-season",
   folder: "folder",
+  poster: "poster",
 };
 
 export const FLAGS = {
@@ -10,6 +11,9 @@ export const FLAGS = {
   "--recursive": "recursive",
   "-a": "auto",
   "--auto": "auto",
+  "-g": "guided",
+  "--guided": "guided",
+  "--tv-season": "tvSeason",
   "-h": "help",
   "--help": "help",
 };

@@ -13,7 +13,7 @@ import { choose, chooseMedia, prompt } from "../shared/input/utils.js";
 import { guidedMatchMovie } from "../features/match/guided.js";
 
 import { getMovieLogo, searchFranchise } from "../api/tmdb/movies.js";
-import { getTVLogo, searchTVSeason } from "../api/tvdb/tv.js";
+import { getTVLogo, searchTVSeason } from "../api/tv.js";
 
 export async function folder(config) {
   try {

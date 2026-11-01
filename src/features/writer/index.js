@@ -44,3 +44,41 @@ export async function updateMetadata(file) {
     if (tempPath) await unlink(tempPath).catch(() => {});
   }
 }
+
+
+/** Update only embedded artwork, without changing titles, tracks or timestamps. */
+export async function updatePoster(file, image) {
+  spinner.step("Updating Poster");
+
+  const mime = image.mime?.split(";")[0]?.trim().toLowerCase();
+  const supportedMime = new Set(["image/jpeg", "image/png"]);
+  if (!supportedMime.has(mime)) {
+    throw new Error(`Unsupported poster image type: ${image.mime ?? "unknown"}`);
+  }
+
+  const extension = mime === "image/png" ? "png" : "jpg";
+  const filename = `cover.${extension}`;
+  const tempPath = path.join(
+    tmpdir(),
+    `mediamate-poster-${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2)}.${extension}`,
+  );
+
+  try {
+    await writeFile(tempPath, image.data);
+    const cover = { filename, tempPath, mime };
+
+    switch (file.extension.toLowerCase()) {
+      case ".mkv":
+        await mkv.updatePoster(file.path, cover);
+        break;
+      case ".mp4":
+      case ".m4v":
+        await mp4.updatePoster(file.path, cover);
+        break;
+      default:
+        throw new Error(`Unsupported format: ${file.extension}`);
+    }
+  } finally {
+    await unlink(tempPath).catch(() => {});
+  }
+}

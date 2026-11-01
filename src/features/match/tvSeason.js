@@ -6,7 +6,7 @@ import {
   searchTV,
   searchTVById,
   getTVLogo,
-} from "../../api/tvdb/tv.js";
+} from "../../api/tv.js";
 
 import { chooseTV, promptTV, promptTVSeason } from "../../shared/input/tv.js";
 

@@ -55,3 +55,36 @@ function tempOutputPath(filePath) {
   // Same directory keeps the final replacement on the same filesystem.
   return `${filePath}.mediamate-tmp.mp4`;
 }
+
+
+/** Replace attached poster art while copying all existing streams and metadata. */
+export async function updatePoster(filePath, cover) {
+  if (!cover) throw new Error("Poster image is required.");
+
+  const { stat, chmod, utimes, rename, unlink } = await import("node:fs/promises");
+  const originalStat = await stat(filePath);
+  const output = tempOutputPath(filePath);
+  const args = [
+    "-hide_banner", "-loglevel", "error", "-y",
+    "-i", filePath,
+    "-i", cover.tempPath,
+    "-map", "0",
+    "-map", "-0:v:disp:attached_pic",
+    "-map", "1:0",
+    "-map_metadata", "0",
+    "-c", "copy",
+    "-disposition:v:1", "attached_pic",
+    "-metadata:s:v:1", "title=Cover",
+    "-f", "mp4", output,
+  ];
+
+  try {
+    await execute("ffmpeg", args);
+    await chmod(output, originalStat.mode);
+    await rename(output, filePath);
+    await utimes(filePath, originalStat.atime, originalStat.mtime);
+  } catch (error) {
+    await unlink(output).catch(() => {});
+    throw new Error(`Could not update MP4 poster with ffmpeg: ${error.message}`);
+  }
+}

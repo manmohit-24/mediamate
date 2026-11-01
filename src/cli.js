@@ -7,6 +7,7 @@ import { spinner } from "./app/spinner.js";
 import { MODES, FLAGS } from "./app/constants.js";
 import { showHelp } from "./app/help.js";
 import { logger } from "./shared/logger.js";
+import { setTVProviders } from "./api/tv.js";
 
 import { scanFiles } from "./features/scan/files.js";
 
@@ -20,6 +21,9 @@ const config = {
   recursive: false,
   auto: false,
   help: false,
+  provider: "tmdb",
+  guided: false,
+  tvSeason: false,
 };
 
 config.mode = MODES[args[0]];
@@ -32,6 +36,16 @@ if (config.help) {
 
 for (let i = 1; i < args.length; i++) {
   const arg = args[i];
+
+  if (arg === "--provider") {
+    const value = args[++i]?.toLowerCase();
+    if (!["tmdb", "tvdb"].includes(value)) {
+      logger.error(`'${arg}' requires either 'tmdb' or 'tvdb'`);
+      process.exit(1);
+    }
+    config.provider = value;
+    continue;
+  }
 
   if (arg.startsWith("-")) {
     const flag = FLAGS[arg];
@@ -66,7 +80,12 @@ logger.text(`Mode             : ${config.mode}`);
 logger.text(`Path             : ${config.path}`);
 logger.text(`Recursive        : ${config.recursive}`);
 logger.text(`Auto-Selection   : ${config.auto}`);
+logger.text(`Metadata Provider: ${config.provider}`);
+logger.text(`Guided Selection : ${config.guided}`);
+logger.text(`TV Season Mode   : ${config.tvSeason}`);
 logger.divider();
+
+setTVProviders({ metadata: config.provider });
 
 let files;
 

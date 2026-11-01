@@ -126,3 +126,28 @@ function parseTV(show) {
     poster: parsePosterUrl(show.image) ?? null,
   };
 }
+
+export async function getAllTVEpisodes(id) {
+  const response = await request(`/series/${id}/extended`);
+  const series = response.data;
+  const defaultSeasonType = series.defaultSeasonType;
+  const seasons = (series.seasons ?? []).filter((item) => {
+    const number = item.number ?? item.seasonNumber;
+    const typeId = item.type?.id ?? item.type;
+    return (
+      number != null &&
+      number >= 0 &&
+      (defaultSeasonType == null || typeId === defaultSeasonType)
+    );
+  });
+
+  const results = await Promise.all(
+    seasons.map((season) =>
+      searchTVSeason(id, season.number ?? season.seasonNumber).catch(
+        () => null,
+      ),
+    ),
+  );
+
+  return results.flatMap((season) => season?.episodes ?? []);
+}

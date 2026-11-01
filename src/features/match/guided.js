@@ -9,7 +9,7 @@ import {
 import { parseEpisodeFilename, attachEpisode } from "./episode.js";
 
 import { searchMovie, searchMovieById } from "../../api/tmdb/movies.js";
-import { searchTV, searchTVById } from "../../api/tvdb/tv.js";
+import { searchTV, searchTVById } from "../../api/tv.js";
 
 import { spinner } from "../../app/spinner.js";
 

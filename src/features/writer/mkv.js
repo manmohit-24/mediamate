@@ -62,3 +62,25 @@ function addPoster(args, cover) {
     cover.tempPath,
   );
 }
+
+
+export async function updatePoster(filePath, cover) {
+  const args = [
+    "--delete-attachment", "mime-type:image/jpeg",
+    "--delete-attachment", "mime-type:image/png",
+  ];
+
+  if (cover) {
+    args.push(
+      "--attachment-name", cover.filename,
+      "--attachment-mime-type", cover.mime,
+      "--add-attachment", cover.tempPath,
+    );
+  }
+
+  try {
+    await execute("mkvpropedit", [filePath, ...args]);
+  } catch (error) {
+    if (error.code > 1) throw error;
+  }
+}
