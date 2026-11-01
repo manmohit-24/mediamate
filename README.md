@@ -1,44 +1,87 @@
 # MediaMate
 
-MediaMate organizes local video files using metadata from The Movie Database (TMDb).
+Personal CLI to clean up a media library: match files to TMDb / TheTVDB, then rename them,
+write tags, embed a poster and set the file date to the release date. It can also give
+folders a poster icon.
 
-## Requirements
+## Setup
 
-- Node.js with the package manager configured by this project
-- `mediainfo`
-- `mkvpropedit` for MKV files
-- `ffmpeg` for MP4/M4V files
-- A TMDb API key in `TMDB_API_KEY`
-
-Install dependencies with `pnpm install`.
-
-## Usage
-
-```sh
-TMDB_API_KEY=your_key pnpm start clean /path/to/video
-TMDB_API_KEY=your_key pnpm start clean /path/to/library --recursive
-TMDB_API_KEY=your_key pnpm start clean /path/to/library --recursive --auto
-TMDB_API_KEY=your_key pnpm start guided /path/to/video
+```bash
+npm install
+npm link            # gives you `mediamate` and `mm`
+cp .env.example .env   # add TMDB_API_KEY (and TVDB_API_KEY if you use --provider tvdb)
 ```
 
-Supported extensions: `.mkv`, `.mp4`, `.m4v`.
+Keys are also read from `~/.config/mediamate/.env`. A key is only required when that provider is used.
 
-## TV episodes
+External tools: `mediainfo`, `mkvpropedit` (MKVToolNix) for .mkv, `ffmpeg` for .mp4/.m4v,
+`magick` (ImageMagick) and `gio` (GNOME) for folder icons.
 
-TV episodes are detected from common filename markers such as:
+## Commands
 
-- `Breaking.Bad.S02E03.1080p.WEB-DL.mkv`
-- `The.Boys.4x08.1080p.mp4`
-- `Pokemon.S01E01.mkv`
-
-Auto mode searches TMDb for the series, then looks up the episode by season and episode number. Interactive mode lets you select the series (or enter a TMDb series ID). Episode files are renamed to a format like:
-
-```text
-Breaking Bad - S02E03 - Four Days Out.mkv
+```
+mediamate organize <path> [-r] [--ask | --auto] [--season] [--folder] [--provider tmdb|tvdb]
+mediamate cover    <path> [-r] [--ask | --auto] [--season] [--provider tmdb|tvdb]
+mediamate folder   <path>
 ```
 
-Animated series use the same TV workflow; they do not require a separate media type. Combined episode markers are recognized, but only the first episode is currently used for metadata.
+| Command    | What it does                                                                                               |
+| ---------- | ---------------------------------------------------------------------------------------------------------- |
+| `organize` | Rename + tags (title, track names, date) + embedded poster + file date = release date                      |
+| `cover`    | Replace only the embedded poster. Names, tags and dates stay untouched                                     |
+| `folder`   | Interactive: pick TV show/season, Movie, Franchise or Manual, then rename the folder and set a poster icon |
 
-## MP4/M4V handling
+**Matching** (one policy for all commands):
 
-MP4 and M4V files are remuxed with FFmpeg using stream copy (no video/audio re-encoding). The writer updates the title/date tags, stream titles, and embeds the downloaded poster as cover art. The original file is replaced only after FFmpeg successfully creates the temporary output.
+- default (smart): accept an exact title + year match, ask when unsure or ambiguous
+- `--ask`: always ask · `--auto`: always take the first result, never ask
+- In the picker you can also search with another title, enter an ID, or skip
+
+**Season handling:** TV files are grouped by show automatically. The show is matched once and
+each season is fetched once, however many episodes there are. `--season` is for files with no
+`SxxExx` in the name (e.g. `Show - 06 - Title.mkv`): you pick the show and season once and files are
+matched by episode number. `--folder` then names the folder after the season and sets its icon.
+
+**Duplicates:** if the target name exists, the file becomes `Name (1).mkv`, `Name (2).mkv`... automatically.
+
+## How a run works
+
+```
+scan -> probe -> parse -> match (asks questions) -> plan        <- decide phase: nothing is written
+                                                      |
+                                   write tags/cover -> rename -> set date   <- apply phase: unattended
+                                                      |
+                                                  summary (exit code 1 if anything failed)
+```
+
+Ctrl+C during the decide phase is always safe. During apply, the current file is finished first.
+Missing API keys or missing tools stop the run immediately instead of failing every file.
+
+## Code layout
+
+```
+src/
+  cli/        argument parsing, help, entry point
+  commands/   organize (+ cover), folder          thin: wire the pieces together
+  flow/       resolve (matching + prompts), decide, apply, summary
+  core/       PURE logic, no I/O: filename parsing, naming, matching, plan building
+  providers/  tmdb + tvdb behind one interface, http (retries), images
+  media/      probe (mediainfo), mkv / mp4 writers
+  fsops/      scan, rename (+ (1)/(2) duplicates), timestamps
+  folder/     ImageMagick artwork, gio icon
+  ui/         terminal (spinner-safe logging), prompts
+  app/        config (.env), context, shutdown, token store, run cache
+test/         node:test; `npm test`
+```
+
+Rules of thumb: `core/` never imports from `ui/`, `providers/` or `media/`. Everything a run needs
+(providers, probe, writer, downloader) hangs off one `ctx` object, which is how tests swap in fakes.
+
+## Tests
+
+```bash
+npm test
+```
+
+Filename parsing is table-driven in `test/parse.test.js`. When a real file name is parsed wrongly,
+add it there first, then fix `src/core/parse/`.
