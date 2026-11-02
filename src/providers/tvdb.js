@@ -107,6 +107,19 @@ export const tvdb = {
         };
     },
 
+    /** Season numbers of a show in its default season order (specials included). */
+    async getSeasonNumbers(id) {
+        const show = (await call(`/series/${id}/extended`)).data;
+        const defaultType = show.defaultSeasonType;
+
+        const numbers = (show.seasons ?? [])
+            .filter((s) => defaultType == null || (s.type?.id ?? s.type) === defaultType)
+            .map((s) => s.number ?? s.seasonNumber)
+            .filter((n) => Number.isInteger(n) && n >= 0);
+
+        return [...new Set(numbers)].sort((a, b) => a - b);
+    },
+
     async getSeriesLogo(id) {
         const [artworks, types] = await Promise.all([
             call(`/series/${id}/artworks`),

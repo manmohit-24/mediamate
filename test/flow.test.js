@@ -73,10 +73,7 @@ function makeCtx(overrides = {}) {
                 },
                 async getSeason(id, number) {
                     calls.getSeason++;
-                    if (number !== 1)
-                        throw Object.assign(new Error("HTTP 404"), {
-                            status: 404,
-                        });
+                    if (number !== 1) throw Object.assign(new Error("HTTP 404"), { status: 404 });
                     return season1;
                 },
             },
@@ -84,15 +81,7 @@ function makeCtx(overrides = {}) {
         async probe() {
             return {
                 title: null,
-                audio: [
-                    {
-                        id: 2,
-                        language: "en",
-                        title: null,
-                        default: true,
-                        forced: false,
-                    },
-                ],
+                audio: [{ id: 2, language: "en", title: null, default: true, forced: false }],
                 subtitles: [],
             };
         },
@@ -268,5 +257,103 @@ test("scan ignores temp files and sorts naturally", async () => {
             files.map((f) => f.name),
             ["E2.mkv", "E10.mkv"]
         );
+    });
+});
+
+// TMDb-style numbering differs from the numbering the files were named with (TVDB-style).
+test("cover --by-title: matches by episode name across different numbering and seasons", async () => {
+    const tmdbSeason1 = {
+        number: 1,
+        title: "Season 1",
+        poster: null,
+        episodes: [
+            {
+                id: 1,
+                title: "Pilot",
+                season: 1,
+                number: 1,
+                airDate: null,
+                poster: "http://img/pilot.jpg",
+            },
+            {
+                id: 2,
+                title: "The Second One",
+                season: 1,
+                number: 2,
+                airDate: null,
+                poster: "http://img/second.jpg",
+            },
+        ],
+    };
+    const tmdbSeason2 = {
+        number: 2,
+        title: "Season 2",
+        poster: null,
+        episodes: [
+            {
+                id: 3,
+                title: "Moved Over",
+                season: 2,
+                number: 1,
+                airDate: null,
+                poster: "http://img/moved.jpg",
+            },
+        ],
+    };
+    const byNumber = { 1: tmdbSeason1, 2: tmdbSeason2 };
+
+    const names = [
+        "Show - S01E01 - The Second One.mkv", // number says 1, title says it is TMDb episode 2
+        "Show - S01E02 - Moved Over.mkv", // lives in season 2 on TMDb
+        "Show - S01E03 - Does Not Exist.mkv", // not on TMDb at all
+        "Show - S05E01 - Pilot.mkv", // season 5 does not exist on TMDb
+        "Show - S01E04.mkv", // no title in the name
+    ];
+
+    await withDir(names, async (dir) => {
+        const { ctx } = makeCtx({ byTitle: true });
+        ctx.providers.tv.searchSeries = async () => [{ ...bb, title: "Show" }];
+        ctx.providers.tv.getSeason = async (id, n) => {
+            if (!byNumber[n]) throw Object.assign(new Error("HTTP 404"), { status: 404 });
+            return byNumber[n];
+        };
+        ctx.providers.tv.getSeasonNumbers = async () => [1, 2];
+
+        const items = await decide(await scanMedia(dir), ctx, COVER_STEPS);
+        const by = Object.fromEntries(items.map((i) => [i.file.name, i]));
+
+        assert.equal(by[names[0]].plan.coverUrl, "http://img/second.jpg");
+        assert.equal(by[names[1]].plan.coverUrl, "http://img/moved.jpg");
+        assert.equal(by[names[3]].plan.coverUrl, "http://img/pilot.jpg"); // found although season 5 is missing
+        assert.equal(by[names[2]].status, "failed");
+        assert.match(by[names[2]].reason, /No episode titled "Does Not Exist"/);
+        assert.equal(by[names[4]].status, "failed");
+        assert.match(by[names[4]].reason, /No episode title in the file name/);
+    });
+});
+
+test("cover --by-title with --season uses the manual show and finds titles in other seasons", async () => {
+    await withDir(["Show - 01 - Moved Over.mkv"], async (dir) => {
+        const s1 = {
+            number: 1,
+            title: "Season 1",
+            poster: null,
+            episodes: [{ id: 1, title: "Pilot", season: 1, number: 1, poster: "a" }],
+        };
+        const s2 = {
+            number: 2,
+            title: "Season 2",
+            poster: null,
+            episodes: [{ id: 2, title: "Moved Over", season: 2, number: 1, poster: "b" }],
+        };
+
+        const { ctx } = makeCtx({ byTitle: true, season: true });
+        ctx.manualSeason = { series: bb, season: s1 };
+        ctx.providers.tv.getSeason = async (id, n) => (n === 1 ? s1 : s2);
+        ctx.providers.tv.getSeasonNumbers = async () => [1, 2];
+
+        const items = await decide(await scanMedia(dir), ctx, COVER_STEPS);
+        assert.equal(items[0].status, "ready");
+        assert.equal(items[0].plan.coverUrl, "b");
     });
 });

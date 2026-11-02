@@ -90,6 +90,12 @@ export const tmdb = {
         };
     },
 
+    /** Season numbers of a show (specials included). */
+    async getSeasonNumbers(id) {
+        const data = await call(`/tv/${id}`);
+        return (data.seasons ?? []).map((s) => s.season_number).sort((a, b) => a - b);
+    },
+
     async getMovieLogo(id) {
         return parseLogos(await call(`/movie/${id}/images`, { include_image_language: "en,null" }));
     },

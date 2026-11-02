@@ -177,6 +177,7 @@ test("cli args", () => {
             recursive: true,
             match: "ask",
             season: false,
+            byTitle: false,
             folder: false,
             provider: "tvdb",
         },
@@ -190,4 +191,55 @@ test("cli args", () => {
     assert.throws(() => parseCli(["organize", "x", "--provider", "imdb"]), /Unknown provider/);
     assert.equal(parseCli(["--help"]).help, true);
     assert.equal(parseCli(["-v"]).version, true);
+});
+
+import { findByTitle, similarity } from "../src/core/matching.js";
+import { parseEpisodeTitle } from "../src/core/parse/episode.js";
+
+test("similarity", () => {
+    assert.equal(similarity("pilot", "pilot"), 1);
+    assert.ok(similarity("cats in the bag", "cats in the bag part two") < 0.88);
+    assert.ok(similarity("and the bags in the river", "and the bag s in the river") > 0.88);
+    assert.equal(similarity("a", "b"), 0);
+});
+
+test("findByTitle: exact, close, ambiguous, none", () => {
+    const eps = [
+        { season: 1, number: 1, title: "Pilot" },
+        { season: 1, number: 2, title: "Cat's in the Bag..." },
+        { season: 1, number: 3, title: "...And the Bag's in the River" },
+        { season: 2, number: 1, title: "Pilot" },
+        { season: 2, number: 2, title: "Seven Thirty-Seven" },
+        { season: 2, number: 3, title: "Seven Thirty-Eight" },
+    ];
+
+    // punctuation/case differences are exact after normalizing
+    assert.equal(findByTitle(eps, "cats in the bag").match, eps[1]);
+    assert.equal(findByTitle(eps, "And the Bags in the River").match.number, 3);
+    // same title twice -> no automatic pick, both offered
+    const pilot = findByTitle(eps, "Pilot");
+    assert.equal(pilot.match, null);
+    assert.deepEqual(pilot.candidates, [eps[0], eps[3]]);
+    // close but two similar candidates -> no clear winner
+    assert.equal(findByTitle(eps, "Seven Thirty Seven Part").match, null);
+    // nothing similar
+    assert.deepEqual(findByTitle(eps, "Totally Different"), { match: null, candidates: [] });
+    assert.deepEqual(findByTitle(eps, ""), { match: null, candidates: [] });
+});
+
+test("parseEpisodeTitle", () => {
+    assert.equal(parseEpisodeTitle("Show - S01E03 - Some Title.mkv"), "Some Title");
+    assert.equal(parseEpisodeTitle("Show - 06 - Some Title 1080p.mkv"), "Some Title");
+    assert.equal(parseEpisodeTitle("06. Some Title.mkv"), "Some Title");
+    assert.equal(parseEpisodeTitle("Show - 06.mkv"), "");
+    assert.equal(parseEpisodeTitle(""), "");
+});
+
+test("cli: --by-title is for cover only", () => {
+    assert.equal(parseCli(["cover", "/lib", "--by-title"]).options.byTitle, true);
+    assert.equal(parseCli(["cover", "/lib"]).options.byTitle, false);
+    assert.throws(
+        () => parseCli(["organize", "/lib", "--by-title"]),
+        /not available for 'organize'/
+    );
 });

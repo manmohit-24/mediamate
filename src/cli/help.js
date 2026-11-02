@@ -43,7 +43,21 @@ Options
   -r, --recursive  Include sub-folders
   --ask | --auto   Same matching modes as organize
   --season         Match by episode number inside one show+season
+  --by-title       Match episodes by their TITLE instead of their number
   --provider <p>   TV provider: tmdb (default) or tvdb
+
+Matching by title (--by-title)
+  For when the numbering differs between providers: e.g. you organized with
+  TheTVDB (correct order) but want TMDb's better episode artwork.
+
+    mediamate organize <path> --provider tvdb
+    mediamate cover    <path> --provider tmdb --by-title
+
+  The file's own season is searched first, then every season of the show.
+  Titles are compared ignoring case and punctuation, and a close spelling is
+  accepted when one episode clearly fits. If nothing fits, you pick the episode
+  (--ask / default) or the file fails (--auto). The file name must contain the
+  episode title, as names written by 'organize' do.
 `,
     folder: `
 mediamate folder <path>

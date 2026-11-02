@@ -1,10 +1,50 @@
 import { SkipError } from "../util/errors.js";
-import { parseEpisode, parseEpisodeNumber } from "../core/parse/episode.js";
-import { matchEpisode } from "../core/matching.js";
+import { parseEpisode, parseEpisodeNumber, parseEpisodeTitle } from "../core/parse/episode.js";
+import { matchEpisode, findByTitle } from "../core/matching.js";
 import { buildPlan } from "../core/plan.js";
 import { episodeTag } from "../core/naming.js";
 import { progress } from "../ui/terminal.js";
-import { resolveMovie, resolveSeries, getSeason } from "./resolve.js";
+import { pickEpisode } from "../ui/prompts.js";
+import { resolveMovie, resolveSeries, getSeason, getAllSeasons } from "./resolve.js";
+
+/**
+ * Match an episode by its title instead of its number (--by-title). Used when
+ * the numbering of the provider differs from the one the file was named with.
+ * Looks in `preferred` (the file's own season) first, then in every season.
+ * When nothing fits clearly: --auto fails, otherwise the user picks.
+ */
+async function matchByTitle(ctx, { series, preferred, title, fileName }) {
+    if (!title) throw new Error("No episode title in the file name (needed for --by-title)");
+
+    if (preferred) {
+        const found = findByTitle(preferred.episodes, title);
+        if (found.match) return { season: preferred, episode: found.match };
+    }
+
+    const seasons = await getAllSeasons(ctx, series);
+    const everything = seasons.flatMap((season) => season.episodes);
+    const found = findByTitle(everything, title);
+
+    const seasonOf = (episode) =>
+        seasons.find((season) => season.episodes.includes(episode)) ?? preferred;
+
+    if (found.match) return { season: seasonOf(found.match), episode: found.match };
+
+    if (ctx.options.match === "auto") {
+        throw new Error(`No episode titled "${title}" found in "${series.title}"`);
+    }
+
+    const options = found.candidates.length
+        ? found.candidates
+        : (preferred?.episodes ?? everything);
+    const episode = await pickEpisode({
+        message: `Which episode is "${title}" (${fileName})?`,
+        episodes: options,
+    });
+
+    if (!episode) throw new SkipError("Skipped");
+    return { season: seasonOf(episode), episode };
+}
 
 async function matchEpisodeFile(ctx, file, parsed) {
     if (!parsed.title) {
@@ -12,6 +52,18 @@ async function matchEpisodeFile(ctx, file, parsed) {
     }
 
     const series = await resolveSeries(ctx, parsed, file.name);
+
+    if (ctx.options.byTitle) {
+        const season = await getSeason(ctx, series, parsed.season).catch(() => null); // may not exist for this provider
+        const found = await matchByTitle(ctx, {
+            series,
+            preferred: season,
+            title: parsed.episodeTitle,
+            fileName: file.name,
+        });
+        return { kind: "episode", series, ...found };
+    }
+
     const season = await getSeason(ctx, series, parsed.season);
     const episode = matchEpisode(season.episodes, parsed);
 
@@ -24,8 +76,18 @@ async function matchEpisodeFile(ctx, file, parsed) {
     return { kind: "episode", series, season, episode };
 }
 
-function matchManualEpisode(ctx, file) {
+async function matchManualEpisode(ctx, file) {
     const { series, season } = ctx.manualSeason;
+
+    if (ctx.options.byTitle) {
+        const found = await matchByTitle(ctx, {
+            series,
+            preferred: season,
+            title: parseEpisodeTitle(file.name),
+            fileName: file.name,
+        });
+        return { kind: "episode", series, ...found };
+    }
 
     const number = parseEpisodeNumber(file.name);
     if (number == null) throw new Error("Could not find an episode number in the file name");
@@ -41,7 +103,7 @@ async function decideFile(ctx, file, steps) {
 
     let match;
     if (ctx.manualSeason) {
-        match = matchManualEpisode(ctx, file);
+        match = await matchManualEpisode(ctx, file);
     } else {
         const parsed = parseEpisode(file.name) ?? (info?.title ? parseEpisode(info.title) : null);
         match = parsed

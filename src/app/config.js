@@ -18,8 +18,8 @@ export const cacheDir = path.join(
 
 /** Load .env from the project root, then from ~/.config/mediamate (first value wins). */
 export function loadEnv() {
-    dotenv.config({ path: path.join(projectRoot, ".env") });
-    dotenv.config({ path: path.join(configDir, ".env") });
+    dotenv.config({ path: path.join(projectRoot, ".env"), quiet: true });
+    dotenv.config({ path: path.join(configDir, ".env"), quiet: true });
 }
 
 /** Keys are checked lazily, so TVDB_API_KEY is only needed when TVDB is used. */

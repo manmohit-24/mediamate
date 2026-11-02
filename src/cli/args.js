@@ -6,6 +6,7 @@ const OPTION_DEFS = {
     ask: { type: "boolean" },
     auto: { type: "boolean" },
     season: { type: "boolean" },
+    "by-title": { type: "boolean" },
     folder: { type: "boolean" },
     provider: { type: "string" },
     help: { type: "boolean", short: "h" },
@@ -15,7 +16,7 @@ const OPTION_DEFS = {
 // Which options each command accepts.
 export const COMMANDS = {
     organize: ["recursive", "ask", "auto", "season", "folder", "provider"],
-    cover: ["recursive", "ask", "auto", "season", "provider"],
+    cover: ["recursive", "ask", "auto", "season", "by-title", "provider"],
     folder: ["provider"],
 };
 
@@ -23,7 +24,7 @@ const PROVIDERS = ["tmdb", "tvdb"];
 
 /**
  * Parse argv into { command, help, version, options }.
- * options: { path, recursive, match: "smart"|"ask"|"auto", season, folder, provider }
+ * options: { path, recursive, match: "smart"|"ask"|"auto", season, byTitle, folder, provider }
  */
 export function parseCli(argv) {
     let parsed;
@@ -68,6 +69,7 @@ export function parseCli(argv) {
             recursive: Boolean(values.recursive),
             match: values.ask ? "ask" : values.auto ? "auto" : "smart",
             season: Boolean(values.season),
+            byTitle: Boolean(values["by-title"]),
             folder: Boolean(values.folder),
             provider,
         },

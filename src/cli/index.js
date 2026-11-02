@@ -45,6 +45,7 @@ async function main() {
             options.match !== "smart" && `--${options.match}`,
             options.recursive && "-r",
             options.season && "--season",
+            options.byTitle && "--by-title",
             options.folder && "--folder",
             options.provider !== "tmdb" && `--provider ${options.provider}`,
         ]

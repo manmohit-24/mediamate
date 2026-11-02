@@ -30,6 +30,17 @@ export async function askChoice(message, options) {
     );
 }
 
+/** Pick which episode a file is. Returns the episode, or null when skipped. */
+export async function pickEpisode({ message, episodes }) {
+    const choices = episodes.map((episode) => ({
+        name: `S${String(episode.season).padStart(2, "0")}E${String(episode.number).padStart(2, "0")} - ${episode.title ?? "(untitled)"}`,
+        value: episode,
+    }));
+    choices.push(new Separator(), { name: "Skip", value: null });
+
+    return ask(() => select({ message, choices, pageSize: 15 }));
+}
+
 /**
  * Show provider matches and let the user pick one, search again, enter an ID
  * or skip. Returns one of:

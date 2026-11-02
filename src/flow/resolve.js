@@ -143,6 +143,21 @@ export function getSeason(ctx, series, number) {
     );
 }
 
+/** Every season of a show (fetched once per run). Seasons that fail to load are left out. */
+export function getAllSeasons(ctx, series) {
+    return ctx.cache.getOrFetch(`all-seasons:${ctx.providers.tv.name}:${series.id}`, async () => {
+        const seasons = [];
+        for (const number of await ctx.providers.tv.getSeasonNumbers(series.id)) {
+            try {
+                seasons.push(await getSeason(ctx, series, number));
+            } catch {
+                // a missing season should not hide the others
+            }
+        }
+        return seasons;
+    });
+}
+
 // ---- Interactive lookups (manual "--season" mode and the folder command) ----
 
 /** Ask for a movie by name or ID. Returns the movie or null (skipped). */
