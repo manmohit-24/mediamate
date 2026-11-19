@@ -1,4 +1,4 @@
-import { unlink, writeFile } from "node:fs/promises";
+import { unlink, writeFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { renderFolderIcon } from "./artwork.js";
 import { setFolderIcon } from "./icon.js";
@@ -7,6 +7,7 @@ import { listSubfolders } from "../fsops/scan.js";
 import { exists } from "../util/exists.js";
 import { UserError } from "../util/errors.js";
 import { log, progress } from "../ui/terminal.js";
+import { setReleaseDate } from "../fsops/timestamps.js";
 
 /**
  * Rename a folder (optional), refresh its poster/logo art (optional) and set
@@ -16,7 +17,7 @@ import { log, progress } from "../ui/terminal.js";
 export async function applyFolder(
     ctx,
     folderPath,
-    { name = null, posterUrl = null, logoUrl = null } = {}
+    { name = null, posterUrl = null, logoUrl = null, releaseDate = null } = {}
 ) {
     let folder = path.resolve(folderPath);
 
@@ -48,6 +49,8 @@ export async function applyFolder(
     progress.update("Updating folder icon");
     await setFolderIcon(folder, iconPath);
     await refreshChildIcons(folder);
+
+    if (releaseDate) await setReleaseDate(folder, releaseDate);
 
     return folder;
 }

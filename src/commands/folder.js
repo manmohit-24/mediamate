@@ -22,19 +22,30 @@ async function tvTarget(ctx) {
     }
 
     const logoUrl = await ctx.providers.tv.getSeriesLogo(series.id).catch(() => null);
-
-    if (seasonNumber == null) return { name: series.title, posterUrl: series.poster, logoUrl };
+    if (seasonNumber == null)
+        return {
+            name: series.title,
+            posterUrl: series.poster,
+            logoUrl,
+            releaseDate: series.firstAirDate,
+        };
 
     const season = await ctx.providers.tv.getSeason(series.id, seasonNumber);
-    return { name: season.title, posterUrl: season.poster ?? series.poster, logoUrl };
+    return {
+        name: season.title,
+        posterUrl: season.poster ?? series.poster,
+        logoUrl,
+        releaseDate: season.episodes[0].airDate,
+    };
 }
 
 async function movieTarget(ctx) {
     const movie = await promptMovie(ctx);
+    console.log(movie);
     if (!movie) return null;
 
     const logoUrl = await ctx.providers.movie.getMovieLogo(movie.id).catch(() => null);
-    return { name: movie.title, posterUrl: movie.poster, logoUrl };
+    return { name: movie.title, posterUrl: movie.poster, logoUrl, releaseDate: movie.releaseDate };
 }
 
 async function franchiseTarget(ctx) {
@@ -46,7 +57,8 @@ async function franchiseTarget(ctx) {
 
 async function manualTarget() {
     const name = await askText("New folder name (empty = keep) :");
-    return { name, posterUrl: null, logoUrl: null };
+    const releaseDate = await askText("Release Date (YYYY-MM-DD) (empty = now)");
+    return { name, posterUrl: null, logoUrl: null, releaseDate };
 }
 
 const TARGETS = {
