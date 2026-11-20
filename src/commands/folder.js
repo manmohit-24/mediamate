@@ -1,13 +1,19 @@
 import path from "node:path";
 import { askChoice } from "../ui/prompts.js";
-import { isDirectory } from "../fsops/scan.js";
-import { applyFolder } from "../folder/index.js";
+import { isDirectory, listSubfolders } from "../fsops/scan.js";
+import { applyFolder, refreshFolders } from "../folder/index.js";
 import { promptMovie, promptSeries, promptCollection } from "../flow/resolve.js";
 import { askText } from "../ui/prompts.js";
 import { UserError } from "../util/errors.js";
 import { log, progress } from "../ui/terminal.js";
 
-const KINDS = ["TV show / season", "Movie", "Franchise", "Manual (use existing .poster.png)"];
+const KINDS = [
+    "TV show / season",
+    "Movie",
+    "Franchise",
+    "Manual (use existing .poster.png)",
+    "Refresh Icons Recursively",
+];
 
 async function tvTarget(ctx) {
     const found = await promptSeries(ctx);
@@ -76,6 +82,13 @@ export async function folder(ctx) {
     const kind = await askChoice("What is this folder?", KINDS);
 
     progress.start("Looking up");
+
+    if (kind === KINDS[4]) {
+        await refreshFolders(ctx, target);
+        progress.stop();
+        return 0;
+    }
+
     const details = await TARGETS[kind](ctx);
 
     if (!details) {

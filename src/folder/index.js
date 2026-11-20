@@ -17,7 +17,8 @@ import { setReleaseDate } from "../fsops/timestamps.js";
 export async function applyFolder(
     ctx,
     folderPath,
-    { name = null, posterUrl = null, logoUrl = null, releaseDate = null } = {}
+    { name = null, posterUrl = null, logoUrl = null, releaseDate = null } = {},
+    refreshChild = true
 ) {
     let folder = path.resolve(folderPath);
 
@@ -43,22 +44,44 @@ export async function applyFolder(
     const iconPath = await renderFolderIcon({
         poster: posterPath,
         logo: (await exists(logoPath)) ? logoPath : null,
-        output: path.join(folder, ".icon.png"),
+        output: path.join(folder, ".icon.ico"),
     });
 
     progress.update("Updating folder icon");
     await setFolderIcon(folder, iconPath);
-    await refreshChildIcons(folder);
+
+    if (refreshChild) await refreshChildIcons(folder);
 
     if (releaseDate) await setReleaseDate(folder, releaseDate);
 
     return folder;
 }
 
+export async function refreshFolders(ctx, parent) {
+    const list = await listSubfolders(parent);
+    list.push(parent);
+
+    for (const folder of list) {
+        const basename = path.basename(folder);
+        progress.update(`Processing : ${basename}`);
+
+        const iconPath = path.join(folder, ".icon.ico");
+
+        try {
+            if (!(await exists(iconPath))) await applyFolder(ctx, folder, {}, false);
+            else await setFolderIcon(folder, iconPath);
+            log.success(`Success :  ${basename}`);
+        } catch (error) {
+            log.error(`Could not refresh icon of ${basename}: ${error.message}`);
+        }
+    }
+}
+
 // Renaming a folder breaks the icon link of folders inside it; set them again.
 async function refreshChildIcons(folder) {
     for (const child of await listSubfolders(folder)) {
-        const iconPath = path.join(child, ".icon.png");
+        const iconPath = path.join(child, ".icon.ico");
+
         if (!(await exists(iconPath))) continue;
 
         try {
